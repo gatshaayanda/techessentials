@@ -6,35 +6,35 @@ import type React from "react";
 type Props = React.SVGProps<SVGSVGElement>;
 
 /**
- * Logo — iHub wordmark + tech orb mark
- * - Neon tech gradient (blue → purple → green)
+ * Logo — Tech Essentials wordmark + secure tech core mark
+ * - Clean corporate blue gradient
  * - Slow shimmer sweep
- * - Gentle float on the orb
- * - Clean, bold wordmark
+ * - Gentle float on the mark
+ * - Bold, trustworthy wordmark
  */
 export default function LogoMkt(props: Props) {
   return (
     <svg
-      viewBox="0 0 320 64"
+      viewBox="0 0 420 64"
       role="img"
-      aria-label="iHub Logo"
+      aria-label="Tech Essentials Logo"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
       className={`logo-fade ${props.className || ""}`}
     >
       <defs>
         {/* Brand gradient */}
-        <linearGradient id="hubGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="teGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="var(--brand-primary)" />
-          <stop offset="55%" stopColor="var(--brand-accent)" />
-          <stop offset="100%" stopColor="var(--brand-secondary)" />
+          <stop offset="60%" stopColor="var(--brand-secondary)" />
+          <stop offset="100%" stopColor="var(--brand-primary)" />
         </linearGradient>
 
         {/* Soft inner glow */}
-        <radialGradient id="hubGlow" cx="50%" cy="40%" r="70%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
-          <stop offset="30%" stopColor="rgba(168,85,247,0.55)" />
-          <stop offset="70%" stopColor="rgba(37,99,235,0.35)" />
+        <radialGradient id="teGlow" cx="50%" cy="45%" r="70%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.92)" />
+          <stop offset="35%" stopColor="rgba(14,165,233,0.42)" />
+          <stop offset="75%" stopColor="rgba(11,94,215,0.26)" />
           <stop offset="100%" stopColor="rgba(0,0,0,0)" />
         </radialGradient>
 
@@ -45,7 +45,7 @@ export default function LogoMkt(props: Props) {
             <animate
               attributeName="offset"
               values="-1; 2"
-              dur="7.5s"
+              dur="9s"
               repeatCount="indefinite"
             />
           </stop>
@@ -53,7 +53,7 @@ export default function LogoMkt(props: Props) {
         </linearGradient>
 
         <mask id="shineMask">
-          <rect width="320" height="64" fill="url(#shine)" />
+          <rect width="420" height="64" fill="url(#shine)" />
         </mask>
       </defs>
 
@@ -65,14 +65,14 @@ export default function LogoMkt(props: Props) {
           cy="0"
           r="20"
           fill="none"
-          stroke="url(#hubGrad)"
+          stroke="url(#teGrad)"
           strokeWidth="2"
-          strokeDasharray="7 5"
+          strokeDasharray="7 6"
           className="spin-slow"
         />
-        {/* Orb */}
-        <circle cx="0" cy="0" r="13" fill="url(#hubGrad)" />
-        <circle cx="0" cy="0" r="18" fill="url(#hubGlow)" opacity="0.65" />
+        {/* Core */}
+        <circle cx="0" cy="0" r="13" fill="url(#teGrad)" />
+        <circle cx="0" cy="0" r="18" fill="url(#teGlow)" opacity="0.6" />
 
         {/* Shimmer sweep */}
         <circle
@@ -81,40 +81,40 @@ export default function LogoMkt(props: Props) {
           r="13"
           fill="url(#shine)"
           mask="url(#shineMask)"
-          opacity="0.35"
+          opacity="0.28"
         />
 
         {/* Nodes */}
         <circle cx="-14" cy="-6" r="2" fill="var(--brand-primary)" />
-        <circle cx="12" cy="-10" r="2" fill="var(--brand-accent)" />
-        <circle cx="14" cy="10" r="2" fill="var(--brand-secondary)" />
+        <circle cx="12" cy="-10" r="2" fill="var(--brand-secondary)" />
+        <circle cx="14" cy="10" r="2" fill="var(--brand-primary)" />
       </g>
 
       {/* Wordmark */}
       <text
         x="78"
         y="41"
-        fill="url(#hubGrad)"
+        fill="url(#teGrad)"
         fontFamily="var(--font-sans)"
         fontWeight="800"
-        fontSize="28"
-        letterSpacing="1.5"
+        fontSize="26"
+        letterSpacing="0.9"
         className="tracking-text"
       >
-        iHub
+        Tech Essentials
       </text>
 
       {/* Sub-label */}
       <text
         x="78"
         y="56"
-        fill="rgba(231,234,240,0.65)"
+        fill="rgba(15,23,42,0.55)"
         fontFamily="var(--font-sans)"
         fontWeight="700"
         fontSize="11"
-        letterSpacing="2.2"
+        letterSpacing="2.0"
       >
-        TECH • GADGETS • WHATSAPP ORDERS
+        POS • SCALES • CCTV • WHATSAPP ORDERS
       </text>
 
       <style jsx>{`
@@ -124,11 +124,11 @@ export default function LogoMkt(props: Props) {
             transform: translateY(0);
           }
           50% {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
           }
         }
         .float {
-          animation: float 5.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+          animation: float 6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
           transform-origin: center;
         }
 
@@ -142,25 +142,23 @@ export default function LogoMkt(props: Props) {
         }
         .spin-slow {
           transform-origin: 0px 0px;
-          animation: spin 7.5s linear infinite;
+          animation: spin 10s linear infinite;
         }
 
         .drop-glow {
-          filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.22))
-            drop-shadow(0 0 18px rgba(168, 85, 247, 0.16))
-            drop-shadow(0 0 22px rgba(52, 211, 153, 0.12));
+          filter: drop-shadow(0 0 10px rgba(11, 94, 215, 0.16))
+            drop-shadow(0 0 16px rgba(14, 165, 233, 0.12));
           transition: filter 0.8s ease;
         }
         .drop-glow:hover {
-          filter: drop-shadow(0 0 16px rgba(96, 165, 250, 0.36))
-            drop-shadow(0 0 26px rgba(168, 85, 247, 0.24))
-            drop-shadow(0 0 30px rgba(52, 211, 153, 0.2));
+          filter: drop-shadow(0 0 14px rgba(11, 94, 215, 0.28))
+            drop-shadow(0 0 22px rgba(14, 165, 233, 0.2));
         }
 
         @keyframes textReveal {
           0% {
             opacity: 0;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.18em;
             transform: translateY(6px);
           }
           100% {
@@ -170,7 +168,7 @@ export default function LogoMkt(props: Props) {
           }
         }
         .tracking-text {
-          animation: textReveal 1.1s cubic-bezier(0.45, 0, 0.25, 1) forwards;
+          animation: textReveal 1.05s cubic-bezier(0.45, 0, 0.25, 1) forwards;
         }
 
         @keyframes fadeInLogo {

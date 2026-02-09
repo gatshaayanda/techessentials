@@ -21,13 +21,13 @@ export default function AdminHubLoader() {
   return (
     <div
       role="status"
-      aria-label="Loading iHub"
+      aria-label="Loading Tech Essentials"
       className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-opacity duration-[1200ms] ${
         fading ? "opacity-0" : "opacity-100"
       }`}
       style={{
-        background: "#020617",   // solid, fully opaque
-        isolation: "isolate",    // 🔥 critical fix
+        background: "#020617", // solid, fully opaque
+        isolation: "isolate", // 🔥 critical fix
         color: "var(--foreground)",
         fontFamily: "var(--font-sans)",
       }}
@@ -99,12 +99,12 @@ export default function AdminHubLoader() {
 
       {/* Wordmark */}
       <div className="uppercase tracking-[0.28em] text-[1.4rem] sm:text-[1.6rem] fade-in-text font-bold">
-        iHub
+        Tech Essentials
       </div>
 
       {/* Tagline */}
       <div className="text-xs sm:text-sm mt-2 text-[--brand-accent] tracking-widest fade-in-delayed">
-        tech • gadgets • lifestyle
+        pos • scales • cctv • accessories
       </div>
 
       {/* Progress bar */}
@@ -119,25 +119,36 @@ export default function AdminHubLoader() {
 
       <style jsx>{`
         @keyframes shimmer {
-          0% { transform: translateX(-150%); }
-          50% { transform: translateX(30%); }
-          100% { transform: translateX(150%); }
+          0% {
+            transform: translateX(-150%);
+          }
+          50% {
+            transform: translateX(30%);
+          }
+          100% {
+            transform: translateX(150%);
+          }
         }
         .shimmer {
           animation: shimmer 2.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
         }
 
         @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-5px);
+          }
         }
         .animate-float {
           animation: float 4.5s cubic-bezier(0.45, 0, 0.25, 1) infinite;
         }
 
         .drop-glow {
-          filter: drop-shadow(0 0 12px rgba(96,165,250,0.35))
-                  drop-shadow(0 0 22px rgba(2,6,23,0.35));
+          filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.35))
+            drop-shadow(0 0 22px rgba(2, 6, 23, 0.35));
           transition: filter 1s ease;
         }
 
@@ -158,7 +169,8 @@ export default function AdminHubLoader() {
         }
         .fade-in-delayed {
           opacity: 0;
-          animation: fadeInText 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.5s forwards;
+          animation: fadeInText 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.5s
+            forwards;
         }
 
         @media (prefers-reduced-motion: reduce) {

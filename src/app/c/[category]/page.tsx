@@ -7,10 +7,12 @@ import { useParams } from "next/navigation";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "@/utils/firebaseConfig";
 
-const WHATSAPP_NUMBER = "+26778768259";
-const CHANNEL_URL = "https://whatsapp.com/channel/0029Vb6s2BE3LdQZJGmxQf1W";
+const WHATSAPP_NUMBER = "+26772545765";
 
-type Category = "phones" | "laptops" | "gadgets" | "clothing" | "shoes";
+const FACEBOOK_PAGE_PRIMARY = "https://www.facebook.com/techessentialz/";
+const FACEBOOK_PAGE_SECONDARY = "https://www.facebook.com/techessentialsbw/";
+
+type Category = "pos" | "scales" | "cctv" | "printers" | "accessories";
 
 type Product = {
   id: string;
@@ -30,20 +32,20 @@ function waLink(text: string) {
   return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 }
 
-const VALID_CATEGORIES: Category[] = ["phones", "laptops", "gadgets", "clothing", "shoes"];
+const VALID_CATEGORIES: Category[] = ["pos", "scales", "cctv", "printers", "accessories"];
 
 export default function CategoryPage() {
   const params = useParams<{ category: string }>();
   const raw = (params?.category || "").toLowerCase();
-  const category = (VALID_CATEGORIES.includes(raw as Category) ? raw : "phones") as Category;
+  const category = (VALID_CATEGORIES.includes(raw as Category) ? raw : "pos") as Category;
 
   const label = useMemo(() => {
     const map: Record<Category, string> = {
-      phones: "Phones",
-      laptops: "Laptops",
-      gadgets: "Gadgets",
-      clothing: "Clothing",
-      shoes: "Shoes",
+      pos: "POS Systems",
+      scales: "Scales",
+      cctv: "CCTV Packages",
+      printers: "Receipt Printers",
+      accessories: "Accessories",
     };
     return map[category];
   }, [category]);
@@ -59,10 +61,16 @@ export default function CategoryPage() {
         setLoading(true);
 
         // ✅ no orderBy → no composite index required
-        const q = query(collection(firestore, "products"), where("category", "==", category));
+        const q = query(
+          collection(firestore, "products"),
+          where("category", "==", category)
+        );
         const snap = await getDocs(q);
 
-        const data = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Product[];
+        const data = snap.docs.map((d) => ({
+          id: d.id,
+          ...(d.data() as any),
+        })) as Product[];
         if (alive) setItems(data);
       } catch (e) {
         console.error("Load category products failed:", e);
@@ -82,37 +90,55 @@ export default function CategoryPage() {
       <section className="container py-10">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{label}</h1>
-            <p className="text-sm text-white/70 mt-1">Browse items and tap “Order on WhatsApp”.</p>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+              {label}
+            </h1>
+            <p className="text-sm text-white/70 mt-1">
+              Browse packages and tap “Order on WhatsApp”.
+            </p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <a
-              href={CHANNEL_URL}
+              href={FACEBOOK_PAGE_PRIMARY}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
             >
-              Follow WhatsApp Channel
+              Facebook
             </a>
+
             <a
-              href={waLink("Hi iHub! I want to ask about products.")}
+              href={FACEBOOK_PAGE_SECONDARY}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
+            >
+              Facebook (Alt)
+            </a>
+
+            <a
+              href={waLink("Hi Tech Essentials! I want to ask about packages and pricing.")}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg bg-[--brand-primary] hover:opacity-90 transition text-sm font-semibold"
             >
-              WhatsApp iHub
+              WhatsApp Tech Essentials
             </a>
           </div>
         </div>
 
         <div className="mt-8">
           {loading ? (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">Loading…</div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+              Loading…
+            </div>
           ) : items.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-              <p className="text-white/80">No items listed here yet. Check back soon.</p>
-              <div className="mt-4 flex justify-center gap-2">
+              <p className="text-white/80">
+                No items listed here yet. Check back soon.
+              </p>
+              <div className="mt-4 flex justify-center gap-2 flex-wrap">
                 <Link
                   href="/deals"
                   className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
@@ -120,7 +146,9 @@ export default function CategoryPage() {
                   View Deals
                 </Link>
                 <a
-                  href={waLink(`Hi iHub! Do you have any ${label.toLowerCase()} available?`)}
+                  href={waLink(
+                    `Hi Tech Essentials! Do you have any ${label.toLowerCase()} available?`
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 rounded-lg bg-[--brand-primary] hover:opacity-90 transition text-sm font-semibold"
@@ -136,8 +164,8 @@ export default function CategoryPage() {
                 const hasDeal = p.isDeal && p.dealPrice && p.dealPrice < p.price;
 
                 const msg = [
-                  "Hi iHub!",
-                  `I want to order: ${p.name}`,
+                  "Hi Tech Essentials!",
+                  `I want to order / request a quote: ${p.name}`,
                   p.brand ? `Brand: ${p.brand}` : "",
                   `Price: P${price}`,
                   hasDeal ? `(Deal: was P${p.price})` : "",
@@ -152,7 +180,12 @@ export default function CategoryPage() {
                     className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden hover:bg-white/10 transition"
                   >
                     <div className="relative aspect-[4/3] bg-black/30">
-                      <Image src={p.imageUrl || "/placeholder.png"} alt={p.name} fill className="object-cover" />
+                      <Image
+                        src={p.imageUrl || "/placeholder.png"}
+                        alt={p.name}
+                        fill
+                        className="object-cover"
+                      />
                       {!p.inStock && (
                         <div className="absolute top-3 left-3 px-2 py-1 rounded-md text-xs font-semibold bg-black/60 border border-white/20">
                           Out of stock
@@ -169,14 +202,22 @@ export default function CategoryPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="font-semibold text-base">{p.name}</div>
-                          {p.brand && <div className="text-xs text-white/60 mt-1">{p.brand}</div>}
+                          {p.brand && (
+                            <div className="text-xs text-white/60 mt-1">
+                              {p.brand}
+                            </div>
+                          )}
                         </div>
 
                         <div className="text-right">
                           {hasDeal ? (
                             <>
-                              <div className="text-sm line-through text-white/50">P{p.price}</div>
-                              <div className="text-lg font-bold">P{p.dealPrice}</div>
+                              <div className="text-sm line-through text-white/50">
+                                P{p.price}
+                              </div>
+                              <div className="text-lg font-bold">
+                                P{p.dealPrice}
+                              </div>
                             </>
                           ) : (
                             <div className="text-lg font-bold">P{p.price}</div>
@@ -185,7 +226,9 @@ export default function CategoryPage() {
                       </div>
 
                       {p.description && (
-                        <p className="text-sm text-white/70 mt-3 line-clamp-3">{p.description}</p>
+                        <p className="text-sm text-white/70 mt-3 line-clamp-3">
+                          {p.description}
+                        </p>
                       )}
 
                       <div className="mt-4 flex gap-2">
@@ -197,13 +240,14 @@ export default function CategoryPage() {
                         >
                           Order on WhatsApp
                         </a>
+
                         <a
-                          href={CHANNEL_URL}
+                          href={FACEBOOK_PAGE_PRIMARY}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
                         >
-                          Channel
+                          Facebook
                         </a>
                       </div>
                     </div>

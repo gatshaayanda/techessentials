@@ -7,34 +7,35 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Menu,
   X,
-  ShoppingBag,
-  Smartphone,
-  Laptop,
-  Watch,
-  Shirt,
-  Footprints,
+  Store,
+  Cctv,
+  Scale,
+  MonitorSmartphone,
+  Printer,
   Tag,
   MessageCircle,
   LogOut,
   Search,
   Radio,
+  Wrench,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const WHATSAPP_NUMBER = "+26778768259";
-const WHATSAPP_CHANNEL =
-  "https://whatsapp.com/channel/0029Vb6s2BE3LdQZJGmxQf1W";
+const WHATSAPP_NUMBER = "+26772545765";
+
+const FACEBOOK_PAGE_PRIMARY = "https://www.facebook.com/techessentialz/";
+const FACEBOOK_PAGE_SECONDARY = "https://www.facebook.com/techessentialsbw/";
 
 const CLIENT_LOGIN_PATH = "/client/login";
 const CLIENT_PORTAL_PATH = "/client/dashboard";
 
 const nav = [
-  { label: "Shop", href: "/", icon: <ShoppingBag size={18} /> },
-  { label: "Phones", href: "/c/phones", icon: <Smartphone size={18} /> },
-  { label: "Laptops", href: "/c/laptops", icon: <Laptop size={18} /> },
-  { label: "Gadgets", href: "/c/gadgets", icon: <Watch size={18} /> },
-  { label: "Clothing", href: "/c/clothing", icon: <Shirt size={18} /> },
-  { label: "Shoes", href: "/c/shoes", icon: <Footprints size={18} /> },
+  { label: "Shop", href: "/", icon: <Store size={18} /> },
+  { label: "POS Systems", href: "/c/pos", icon: <MonitorSmartphone size={18} /> },
+  { label: "Scales", href: "/c/scales", icon: <Scale size={18} /> },
+  { label: "CCTV", href: "/c/cctv", icon: <Cctv size={18} /> },
+  { label: "Printers", href: "/c/printers", icon: <Printer size={18} /> },
+  { label: "Accessories", href: "/c/accessories", icon: <Wrench size={18} /> },
   { label: "Deals", href: "/deals", icon: <Tag size={18} /> },
 ];
 
@@ -77,18 +78,18 @@ export default function Header() {
       <Link
         href="/"
         onClick={close}
-        aria-label="iHub — Home"
+        aria-label="Tech Essentials — Home"
         className="flex items-center gap-2.5 select-none"
         prefetch={false}
       >
-        <span className="grid place-items-center h-9 w-9 rounded-xl border border-[--border] bg-[--surface] shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+        <span className="grid place-items-center h-9 w-9 rounded-xl border border-white/10 bg-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
           <Radio size={18} className="text-[--brand-primary]" />
         </span>
         <span className="text-base sm:text-lg md:text-xl font-extrabold tracking-tight text-[--foreground] whitespace-nowrap">
-          iHub
+          Tech Essentials
         </span>
         <span className="hidden sm:inline text-xs md:text-sm font-semibold text-[--muted] whitespace-nowrap">
-          Tech • Gadgets • Orders on WhatsApp
+          POS • Scales • CCTV • WhatsApp Orders
         </span>
       </Link>
     ),
@@ -104,7 +105,7 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full z-50 bg-[--background] text-[--foreground] border-b border-[--border] overflow-x-hidden">
+    <header className="w-full z-50 bg-[--background] text-[--foreground] border-b border-white/10 overflow-x-hidden">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-white text-black px-3 py-2 rounded"
@@ -132,7 +133,7 @@ export default function Header() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search iPhones, Samsung, laptops, shoes…"
+              placeholder="Search POS, scales, CCTV, printers…"
               className="input pl-10 pr-3 py-2.5"
             />
           </div>
@@ -143,7 +144,7 @@ export default function Header() {
           <ThemeToggle />
 
           <a
-            href={waLink("Hi iHub 👋 I need help with an order / prices.")}
+            href={waLink("Hi Tech Essentials 👋 I need help with POS / Scales / CCTV.")}
             className="btn btn-outline"
             aria-label="Chat on WhatsApp"
           >
@@ -152,14 +153,14 @@ export default function Header() {
           </a>
 
           <a
-            href={WHATSAPP_CHANNEL}
+            href={FACEBOOK_PAGE_PRIMARY}
             target="_blank"
             rel="noreferrer"
             className="btn btn-outline"
-            aria-label="Follow WhatsApp Channel"
+            aria-label="Visit Facebook Page"
           >
             <Radio size={18} />
-            Channel
+            Facebook
           </a>
 
           {!authed ? (
@@ -195,7 +196,7 @@ export default function Header() {
         <button
           type="button"
           onClick={() => setOpen((s) => !s)}
-          className="md:hidden p-2 rounded-lg border border-[--border] bg-[--surface] text-[--foreground]"
+          className="md:hidden p-2 rounded-lg border border-white/10 bg-white/5 text-[--foreground]"
           aria-label="Toggle menu"
           aria-expanded={open}
           aria-controls="mobile-menu"
@@ -205,7 +206,7 @@ export default function Header() {
       </div>
 
       {/* Desktop Nav */}
-      <div className="hidden md:block border-t border-[--border]">
+      <div className="hidden md:block border-t border-white/10">
         <div className="container flex items-center gap-2 py-2">
           <nav className="flex items-center gap-1 flex-wrap" aria-label="Primary">
             {nav.map((item) => (
@@ -214,7 +215,7 @@ export default function Header() {
                 href={item.href}
                 className={`menu-link ${
                   isActive(item.href)
-                    ? "bg-white/5 border border-[--border] text-[--foreground]"
+                    ? "bg-white/5 border border-white/10 text-[--foreground]"
                     : ""
                 }`}
                 prefetch={false}
@@ -235,7 +236,7 @@ export default function Header() {
         }`}
         aria-hidden={!open}
       >
-        <div className="px-4 pb-4 pt-3 bg-[--background] border-t border-[--border]">
+        <div className="px-4 pb-4 pt-3 bg-[--background] border-t border-white/10">
           {/* Mobile Search */}
           <form onSubmit={onSearch} className="mb-3" role="search">
             <div className="relative">
@@ -261,7 +262,7 @@ export default function Header() {
                 onClick={close}
                 className={`menu-link justify-between ${
                   isActive(item.href)
-                    ? "bg-white/5 border border-[--border] text-[--foreground]"
+                    ? "bg-white/5 border border-white/10 text-[--foreground]"
                     : ""
                 }`}
                 prefetch={false}
@@ -286,7 +287,7 @@ export default function Header() {
             <div className="h-px bg-white/10 my-2" />
 
             <a
-              href={waLink("Hi iHub 👋 I want to place an order.")}
+              href={waLink("Hi Tech Essentials 👋 I want to place an order.")}
               onClick={close}
               className="btn btn-primary w-full"
             >
@@ -295,14 +296,25 @@ export default function Header() {
             </a>
 
             <a
-              href={WHATSAPP_CHANNEL}
+              href={FACEBOOK_PAGE_PRIMARY}
               target="_blank"
               rel="noreferrer"
               onClick={close}
               className="btn btn-outline w-full"
             >
               <Radio size={18} />
-              Follow Channel
+              Facebook
+            </a>
+
+            <a
+              href={FACEBOOK_PAGE_SECONDARY}
+              target="_blank"
+              rel="noreferrer"
+              onClick={close}
+              className="btn btn-outline w-full"
+            >
+              <Radio size={18} />
+              Facebook (Alt)
             </a>
 
             {!authed ? (
@@ -345,7 +357,7 @@ export default function Header() {
               className="inline-flex items-center gap-2 text-[--muted] text-sm"
             >
               <MessageCircle size={16} />
-              {WHATSAPP_NUMBER}
+              +267 72 545 765
             </a>
           </div>
         </div>

@@ -4,28 +4,30 @@ import { NextResponse } from "next/server";
 type BotResponse = { reply: string; suggestions?: string[] };
 
 const CONTACT = {
-  whatsappNumber: "+267 78 768 259",
-  whatsappChannel:
-    "https://whatsapp.com/channel/0029Vb6s2BE3LdQZJGmxQf1W",
+  whatsappNumber: "+267 72 545 765",
+  facebookPrimary: "https://www.facebook.com/techessentialz/",
+  facebookSecondary: "https://www.facebook.com/techessentialsbw/",
 };
 
 const PATHS = {
-  phones: "/c/phones",
-  laptops: "/c/laptops",
-  gadgets: "/c/gadgets",
-  clothing: "/c/clothing",
-  shoes: "/c/shoes",
+  pos: "/c/pos",
+  scales: "/c/scales",
+  cctv: "/c/cctv",
+  printers: "/c/printers",
+  accessories: "/c/accessories",
   deals: "/deals",
 };
 
 const SUGG = {
-  PHONES: "Phones",
-  LAPTOPS: "Laptops",
-  GADGETS: "Gadgets",
-  CLOTHING_SHOES: "Clothing & Shoes",
+  POS: "POS Systems",
+  SCALES: "Scales",
+  CCTV: "CCTV Packages",
+  PRINTERS: "Receipt Printers",
+  ACCESSORIES: "Accessories",
   HOW: "How to order",
   ORDER: "Order on WhatsApp",
-  CHANNEL: "WhatsApp Channel",
+  FB: "Facebook Page",
+  FB_ALT: "Facebook (Alt)",
   DEALS: "Deals",
 } as const;
 
@@ -51,21 +53,25 @@ let memory: { greeted?: boolean; lastIntent?: string } = {};
 // Phrase pools
 const tone = {
   greet: [
-    "Hey 👋 Welcome to iHub.",
-    "Hi there 👋 You’re chatting with iHub.",
-    "Welcome! iHub can help you with prices and orders.",
+    "Hey 👋 Welcome to Tech Essentials.",
+    "Hi there 👋 You’re chatting with Tech Essentials.",
+    "Welcome! I can help you with POS, scales, CCTV packages, and how to order on WhatsApp.",
   ],
   order: [
-    "To order: browse prices, then tap “Order on WhatsApp” and send your list. iHub will confirm availability + delivery + payment.",
-    "Ordering is easy: choose items, then message iHub on WhatsApp with the model + storage + color (and your location).",
+    "To order: browse packages/prices, then tap “Order on WhatsApp” and send your list. We’ll confirm availability, delivery/installation, and payment.",
+    "Ordering is simple: tell us the package/item you want, quantity, and your location. If it’s CCTV, mention number of cameras + installation required.",
   ],
   categories: [
-    `We stock phones (iPhone, Samsung, Redmi/Xiaomi), laptops, and gadgets.\nWe also order clothing and shoes on request.`,
-    "Phones, laptops, and gadgets are available — and we can also order clothing/shoes if you send details or a photo.",
+    "We supply POS systems, price computing scales, CCTV packages, and business accessories (printers, scanners, cables, etc.).",
+    "POS • Scales • CCTV • Printers • Accessories — tell me what you need and I’ll guide you to the right section.",
   ],
   pricing: [
-    "Tell me the exact model (e.g. iPhone 13 128GB / Samsung A15) and I’ll guide you to the right section and ordering steps.",
-    "Which model are you looking for? (brand + model + storage) — I’ll help you place the order.",
+    "Tell me what you need (e.g. POS + printer, scale with pole display, 4-camera CCTV) and I’ll guide you to the right section and ordering steps.",
+    "Which package are you looking for — POS, scale, CCTV, or printer? I’ll help you place the order.",
+  ],
+  install: [
+    "For installation, share your location and a quick note about the shop/home setup (indoor/outdoor cameras, number of rooms, etc.).",
+    "If you want CCTV installed, tell me: number of cameras, indoor/outdoor, and your location — we’ll advise the best package.",
   ],
 };
 
@@ -81,63 +87,94 @@ const INTENTS: Intent[] = [
   {
     name: "greeting",
     weight: 3,
-    matchers: [/\b(hello|hi|hey|sup|morning|afternoon|evening)\b/, /\b(start|help|menu)\b/],
+    matchers: [
+      /\b(hello|hi|hey|sup|morning|afternoon|evening)\b/,
+      /\b(start|help|menu)\b/,
+    ],
     respond: () => {
       memory.greeted = true;
-      return reply(
-        `${pick(tone.greet)}\nWhat are you looking for today?`,
-        [SUGG.PHONES, SUGG.LAPTOPS, SUGG.GADGETS, SUGG.CLOTHING_SHOES, SUGG.ORDER]
-      );
+      return reply(`${pick(tone.greet)}\nWhat do you need today?`, [
+        SUGG.POS,
+        SUGG.SCALES,
+        SUGG.CCTV,
+        SUGG.PRINTERS,
+        SUGG.ORDER,
+      ]);
     },
   },
   {
-    name: "phones",
+    name: "pos",
     weight: 3,
-    matchers: [/\b(phone|iphone|samsung|redmi|xiaomi|infinix|tecno|huawei)\b/],
+    matchers: [
+      /\b(pos|point of sale|till|cashier|cash register|billing|shop system)\b/,
+      /\b(supermarket|tuckshop|general dealer|butchery|restaurant|bar|liquor)\b/,
+    ],
     respond: () =>
       reply(
-        `${pick(tone.pricing)}\nYou can also browse here: ${PATHS.phones}`,
-        [SUGG.PHONES, SUGG.ORDER, SUGG.DEALS, SUGG.CHANNEL]
+        `${pick(tone.pricing)}\nBrowse POS options here: ${PATHS.pos}`,
+        [SUGG.POS, SUGG.ORDER, SUGG.DEALS, SUGG.FB]
       ),
   },
   {
-    name: "laptops",
+    name: "scales",
     weight: 3,
-    matchers: [/\b(laptop|macbook|hp|dell|lenovo|asus|acer)\b/],
+    matchers: [
+      /\b(scale|scales|weighing|weight|price computing|label scale)\b/,
+      /\b(butchery|meat|deli|vegetable|produce)\b/,
+    ],
     respond: () =>
       reply(
-        `Nice — laptops are here: ${PATHS.laptops}\nTell me the brand + size + budget and I’ll help you order.`,
-        [SUGG.LAPTOPS, SUGG.ORDER, SUGG.DEALS, SUGG.CHANNEL]
+        `Scales are here: ${PATHS.scales}\nTell me if you need a pole display and your budget.`,
+        [SUGG.SCALES, SUGG.ORDER, SUGG.DEALS, SUGG.FB]
       ),
   },
   {
-    name: "gadgets",
-    weight: 2,
-    matchers: [/\b(gadget|airpods|earbuds|headphones|watch|smartwatch|speaker|charger|power bank|cable)\b/],
+    name: "cctv",
+    weight: 3,
+    matchers: [
+      /\b(cctv|camera|cameras|dvr|nvr|hikvision|dahua|colorvu|colourvu|night vision|security)\b/,
+      /\b(install|installation|mount|setup|configure)\b/,
+    ],
     respond: () =>
       reply(
-        `Gadgets are here: ${PATHS.gadgets}\nTell me what you need and I’ll guide the order message.`,
-        [SUGG.GADGETS, SUGG.ORDER, SUGG.CHANNEL]
+        `CCTV packages are here: ${PATHS.cctv}\n${pick(tone.install)}`,
+        [SUGG.CCTV, SUGG.ORDER, SUGG.HOW, SUGG.FB]
       ),
   },
   {
-    name: "clothing_shoes",
+    name: "printers",
     weight: 2,
-    matchers: [/\b(clothing|clothes|shirt|hoodie|pants|jeans|dress|shoe|shoes|sneaker|nike|adidas|puma|converse)\b/],
+    matchers: [
+      /\b(printer|receipt printer|thermal|pos printer)\b/,
+      /\b(barcode scanner|scanner|cash drawer|label printer)\b/,
+    ],
     respond: () =>
       reply(
-        `For clothing/shoes, send: size, color, brand (if any), and budget. If you have a photo/link, even better.\nWant to order now?`,
-        [SUGG.ORDER, SUGG.CLOTHING_SHOES, SUGG.CHANNEL]
+        `Printers & accessories are here: ${PATHS.printers}\nTell me what POS you’re using and I’ll guide compatibility.`,
+        [SUGG.PRINTERS, SUGG.ACCESSORIES, SUGG.ORDER, SUGG.FB]
+      ),
+  },
+  {
+    name: "accessories",
+    weight: 2,
+    matchers: [
+      /\b(accessory|accessories|cable|hdmi|power|adapter|router|switch)\b/,
+      /\b(scanner|cash drawer|keyboard|mouse|monitor)\b/,
+    ],
+    respond: () =>
+      reply(
+        `Accessories are here: ${PATHS.accessories}\nTell me what you need and quantity.`,
+        [SUGG.ACCESSORIES, SUGG.ORDER, SUGG.DEALS, SUGG.FB]
       ),
   },
   {
     name: "order",
     weight: 3,
-    matchers: [/\b(order|buy|purchase|deliver|delivery|whatsapp|payment|pay)\b/],
+    matchers: [/\b(order|buy|purchase|deliver|delivery|whatsapp|payment|pay|quote|price)\b/],
     respond: () =>
       reply(
-        `${pick(tone.order)}\nWhatsApp: ${CONTACT.whatsappNumber}\nChannel: ${CONTACT.whatsappChannel}`,
-        [SUGG.ORDER, SUGG.HOW, SUGG.CHANNEL]
+        `${pick(tone.order)}\nWhatsApp: ${CONTACT.whatsappNumber}\nFacebook: ${CONTACT.facebookPrimary}`,
+        [SUGG.ORDER, SUGG.HOW, SUGG.FB, SUGG.FB_ALT]
       ),
   },
   {
@@ -145,25 +182,35 @@ const INTENTS: Intent[] = [
     weight: 2,
     matchers: [/\b(deal|deals|discount|sale|promo|special)\b/],
     respond: () =>
-      reply(`Check deals here: ${PATHS.deals}`, [SUGG.DEALS, SUGG.ORDER, SUGG.CHANNEL]),
+      reply(`Check deals here: ${PATHS.deals}`, [
+        SUGG.DEALS,
+        SUGG.ORDER,
+        SUGG.FB,
+      ]),
   },
   {
     name: "browse",
     weight: 2,
     matchers: [/\b(browse|categories|what do you sell|what do you have|stock)\b/],
     respond: () =>
-      reply(`${pick(tone.categories)}`, [SUGG.PHONES, SUGG.LAPTOPS, SUGG.GADGETS, SUGG.CLOTHING_SHOES]),
+      reply(`${pick(tone.categories)}`, [
+        SUGG.POS,
+        SUGG.SCALES,
+        SUGG.CCTV,
+        SUGG.PRINTERS,
+        SUGG.ACCESSORIES,
+      ]),
   },
 ];
 
 const FALLBACK = () =>
   reply(
     pick([
-      "Tell me the exact item/model you want (brand + model + storage/size) and I’ll help you order.",
-      "If it’s not listed, you can still order — describe it and I’ll help you message iHub.",
+      "Tell me what you need (POS / scale / CCTV) and any details (qty, budget, location) — I’ll guide you to the right package.",
+      "If you’re not sure which package fits, tell me your business type (tuckshop, butchery, restaurant) and I’ll recommend what to ask for on WhatsApp.",
       `You can also order directly on WhatsApp: ${CONTACT.whatsappNumber}`,
     ]),
-    [SUGG.PHONES, SUGG.LAPTOPS, SUGG.GADGETS, SUGG.ORDER, SUGG.CHANNEL]
+    [SUGG.POS, SUGG.SCALES, SUGG.CCTV, SUGG.ORDER, SUGG.FB]
   );
 
 function detectIntent(text: string): Intent | null {
@@ -189,10 +236,10 @@ export async function POST(req: Request) {
   if (!text) {
     return NextResponse.json(
       reply(`${pick(tone.greet)}\nWhat are you looking for?`, [
-        SUGG.PHONES,
-        SUGG.LAPTOPS,
-        SUGG.GADGETS,
-        SUGG.CLOTHING_SHOES,
+        SUGG.POS,
+        SUGG.SCALES,
+        SUGG.CCTV,
+        SUGG.PRINTERS,
         SUGG.ORDER,
       ])
     );

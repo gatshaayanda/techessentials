@@ -13,7 +13,7 @@ import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-/* Fonts — iHub tech/retail vibe */
+/* Fonts — Tech Essentials (POS / Scales / CCTV) */
 const montserrat = Montserrat({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -29,10 +29,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "iHub — Tech, Gadgets, Phones & Laptops",
+  title: "Tech Essentials — POS, Scales & CCTV Solutions",
   description:
-    "Shop phones, laptops, gadgets, and accessories. View prices and place orders directly via WhatsApp. Clothing and shoes available on request.",
-  applicationName: "iHub",
+    "Affordable POS packages, price computing scales, and CCTV installation solutions for tuckshops, supermarkets, restaurants, butcheries, and general dealers. Order via WhatsApp.",
+  applicationName: "Tech Essentials",
 };
 
 export default function RootLayout({
@@ -53,7 +53,7 @@ export default function RootLayout({
         <AnalyticsProvider>
           {/* App shell */}
           <div className="min-h-screen flex flex-col">
-            <div className="sticky top-0 z-40 bg-[--background]/80 backdrop-blur border-b border-white/10">
+            <div className="sticky top-0 z-40 bg-[--background]/80 backdrop-blur border-b border-[--border]">
               <Header />
             </div>
 

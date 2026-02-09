@@ -4,9 +4,10 @@
 import Link from "next/link";
 import { MessageCircle, Radio } from "lucide-react";
 
-const WHATSAPP_NUMBER = "+26778768259";
-const WHATSAPP_CHANNEL =
-  "https://whatsapp.com/channel/0029Vb6s2BE3LdQZJGmxQf1W";
+const WHATSAPP_NUMBER = "+26772545765";
+
+const FACEBOOK_PAGE_PRIMARY = "https://www.facebook.com/techessentialz/";
+const FACEBOOK_PAGE_SECONDARY = "https://www.facebook.com/techessentialsbw/";
 
 function waLink(message: string) {
   const digits = WHATSAPP_NUMBER.replace(/[^\d]/g, "");
@@ -18,8 +19,8 @@ export default function Footer() {
 
   return (
     <footer className="mt-16 text-[--foreground] bg-[--background] relative overflow-hidden">
-      {/* Subtle neon shimmer line */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[--brand-primary]/30 via-[--brand-accent]/60 to-[--brand-secondary]/30 animate-neonflow" />
+      {/* Subtle brand shimmer line */}
+      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[--brand-primary]/35 via-[--brand-secondary]/55 to-[--brand-primary]/35 animate-neonflow" />
 
       <div className="container grid gap-10 sm:grid-cols-2 lg:grid-cols-4 py-12 text-sm relative z-10">
         {/* Brand */}
@@ -28,51 +29,65 @@ export default function Footer() {
             id="footer-brand"
             className="text-lg font-extrabold tracking-tight text-[--foreground] mb-2"
           >
-            iHub
+            Tech Essentials
           </h4>
           <p className="text-[--muted] leading-relaxed">
-            Tech & gadgets store. Browse prices for phones, laptops, and gadgets.
-            We also help you order clothing and shoes.
+            POS systems, price computing scales, CCTV packages, and business
+            accessories. Browse deals and order directly on WhatsApp.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="badge">Phones</span>
-            <span className="badge">Laptops</span>
-            <span className="badge">Gadgets</span>
-            <span className="badge">Clothing</span>
-            <span className="badge">Shoes</span>
+            <span className="badge">POS</span>
+            <span className="badge">Scales</span>
+            <span className="badge">CCTV</span>
+            <span className="badge">Printers</span>
+            <span className="badge">Accessories</span>
           </div>
         </section>
 
-        {/* WhatsApp + Channel */}
+        {/* WhatsApp + Facebook */}
         <section aria-labelledby="footer-contact">
           <h4
             id="footer-contact"
             className="text-lg font-bold text-[--foreground] mb-2"
           >
-            WhatsApp
+            Contact
           </h4>
 
           <ul className="space-y-2 text-[--muted]">
             <li>
               <a
-                href={waLink("Hi iHub 👋 I want to ask about prices / place an order.")}
+                href={waLink(
+                  "Hi Tech Essentials 👋 I want to ask about POS / Scales / CCTV prices."
+                )}
                 className="inline-flex items-center gap-2 hover:underline"
               >
                 <MessageCircle size={18} />
-                Chat: {WHATSAPP_NUMBER}
+                WhatsApp: +267 72 545 765
               </a>
             </li>
 
             <li>
               <a
-                href={WHATSAPP_CHANNEL}
+                href={FACEBOOK_PAGE_PRIMARY}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 hover:underline"
               >
                 <Radio size={18} />
-                Follow our WhatsApp Channel
+                Facebook: techessentialz
+              </a>
+            </li>
+
+            <li>
+              <a
+                href={FACEBOOK_PAGE_SECONDARY}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 hover:underline"
+              >
+                <Radio size={18} />
+                Facebook: techessentialsbw
               </a>
             </li>
           </ul>
@@ -80,7 +95,7 @@ export default function Footer() {
           <div className="mt-4">
             <a
               href={waLink(
-                "Hi iHub 👋 I want to order:\n\n1) \n2) \n\nDelivery location: \nName: "
+                "Hi Tech Essentials 👋 I want to order:\n\n1) \n2) \n\nDelivery location: \nName: "
               )}
               className="btn btn-primary w-full"
             >
@@ -106,28 +121,28 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/c/phones" className="hover:underline">
-                Phones
+              <Link href="/c/pos" className="hover:underline">
+                POS Systems
               </Link>
             </li>
             <li>
-              <Link href="/c/laptops" className="hover:underline">
-                Laptops
+              <Link href="/c/scales" className="hover:underline">
+                Scales
               </Link>
             </li>
             <li>
-              <Link href="/c/gadgets" className="hover:underline">
-                Gadgets
+              <Link href="/c/cctv" className="hover:underline">
+                CCTV
               </Link>
             </li>
             <li>
-              <Link href="/c/clothing" className="hover:underline">
-                Clothing
+              <Link href="/c/printers" className="hover:underline">
+                Printers
               </Link>
             </li>
             <li>
-              <Link href="/c/shoes" className="hover:underline">
-                Shoes
+              <Link href="/c/accessories" className="hover:underline">
+                Accessories
               </Link>
             </li>
             <li>
@@ -148,17 +163,17 @@ export default function Footer() {
           </h4>
 
           <p className="text-[--muted] leading-relaxed">
-            Browse prices on the website, then tap “Order on WhatsApp” to send
-            your list. We’ll confirm availability, delivery options, and payment
-            details on WhatsApp.
+            Browse packages and prices on the website, then tap “Order on
+            WhatsApp” to send your list. We’ll confirm availability, delivery or
+            installation options, and payment details on WhatsApp.
           </p>
 
           <div className="mt-4 card">
             <div className="card-inner">
               <p className="text-[--foreground] font-semibold">Tip</p>
               <p className="text-[--muted] mt-1">
-                Send a screenshot or product link when asking for something not
-                listed (clothing/shoes).
+                For installations (CCTV / POS setup), send your location and a
+                photo of the shop layout if possible.
               </p>
             </div>
           </div>
@@ -168,8 +183,8 @@ export default function Footer() {
       {/* Bottom strip */}
       <div className="border-t border-[--border] relative z-10">
         <div className="container py-4 flex flex-col md:flex-row justify-between text-xs text-[--muted] gap-2">
-          <div>&copy; {year} iHub. All rights reserved.</div>
-          <div>Prices may change based on supplier availability.</div>
+          <div>&copy; {year} Tech Essentials. All rights reserved.</div>
+          <div>Prices may change based on stock and supplier availability.</div>
         </div>
       </div>
 

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  ShoppingBag,
   MessageCircle,
   Sparkles,
   ShieldCheck,
@@ -40,9 +39,10 @@ type Product = {
 
 /* ───────────────── CONSTANTS ───────────────── */
 
-const WHATSAPP_NUMBER = "+26778768259";
-const WHATSAPP_CHANNEL =
-  "https://whatsapp.com/channel/0029Vb6s2BE3LdQZJGmxQf1W";
+const WHATSAPP_NUMBER = "+26772545765";
+
+const FACEBOOK_PAGE_PRIMARY = "https://www.facebook.com/techessentialz/";
+const FACEBOOK_PAGE_SECONDARY = "https://www.facebook.com/techessentialsbw/";
 
 function waLink(message: string) {
   const digits = WHATSAPP_NUMBER.replace(/[^\d]/g, "");
@@ -105,39 +105,51 @@ export default function HomePage() {
         <div className="relative z-10 text-center max-w-4xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/15 bg-white/10 text-xs">
             <Sparkles size={14} />
-            Phones • Laptops • Gadgets • More on request
+            POS • Scales • CCTV • Printers • Accessories
           </div>
 
           <h1 className="mt-6 text-5xl md:text-6xl font-extrabold">
-            iHub
+            Tech Essentials
             <span className="block text-xl md:text-2xl text-white/70 mt-3">
-              Prices + Fast WhatsApp Ordering
+              Quotes + Fast WhatsApp Ordering
             </span>
           </h1>
 
           <p className="mt-5 text-white/70 max-w-2xl mx-auto">
-            Browse prices, pick what you want, and order instantly on WhatsApp.
+            Browse packages, request a quote, and order instantly on WhatsApp.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <a
-              href={waLink("Hi iHub! I want to place an order.")}
+              href={waLink("Hi Tech Essentials! I want to request a quote / place an order.")}
               className="px-7 py-3 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 transition"
             >
               Order on WhatsApp
             </a>
+
             <Link
-              href="/c/phones"
+              href="/c/pos"
               className="px-7 py-3 rounded-full bg-blue-700 hover:brightness-110 transition"
             >
-              Browse Prices
+              Browse Packages
             </Link>
+
             <a
-              href={WHATSAPP_CHANNEL}
+              href={FACEBOOK_PAGE_PRIMARY}
               target="_blank"
+              rel="noreferrer"
               className="px-7 py-3 rounded-full border border-white/15 hover:bg-white/10 transition"
             >
-              Follow Channel
+              Facebook
+            </a>
+
+            <a
+              href={FACEBOOK_PAGE_SECONDARY}
+              target="_blank"
+              rel="noreferrer"
+              className="px-7 py-3 rounded-full border border-white/15 hover:bg-white/10 transition"
+            >
+              Facebook (Alt)
             </a>
           </div>
         </div>
@@ -146,10 +158,8 @@ export default function HomePage() {
       {/* ───────── FEATURED PRODUCTS ───────── */}
       <section className="py-20 px-6">
         <div className="container">
-          <h2 className="text-3xl font-extrabold mb-3">Featured Products</h2>
-          <p className="text-white/60 mb-10">
-            Latest items added by admin.
-          </p>
+          <h2 className="text-3xl font-extrabold mb-3">Featured Packages</h2>
+          <p className="text-white/60 mb-10">Latest items added by admin.</p>
 
           {loading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -167,8 +177,7 @@ export default function HomePage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {products.map((p) => {
-                const price =
-                  p.isDeal && p.dealPrice ? p.dealPrice : p.price;
+                const price = p.isDeal && p.dealPrice ? p.dealPrice : p.price;
 
                 return (
                   <Link
@@ -196,15 +205,11 @@ export default function HomePage() {
                     </div>
 
                     <div className="p-4">
-                      <div className="font-semibold line-clamp-1">
-                        {p.name}
-                      </div>
+                      <div className="font-semibold line-clamp-1">{p.name}</div>
                       <div className="text-sm text-white/60 mt-1">
                         {p.brand || p.category}
                       </div>
-                      <div className="mt-3 text-lg font-bold">
-                        P{price}
-                      </div>
+                      <div className="mt-3 text-lg font-bold">P{price}</div>
                     </div>
                   </Link>
                 );
@@ -220,18 +225,18 @@ export default function HomePage() {
           {[
             {
               icon: <ShieldCheck size={18} />,
-              title: "Trusted sourcing",
+              title: "Trusted supply",
               desc: "Availability confirmed before payment.",
             },
             {
               icon: <Truck size={18} />,
-              title: "Delivery options",
-              desc: "Collection or delivery arranged.",
+              title: "Delivery / installation",
+              desc: "Collection, delivery, or installation arranged.",
             },
             {
               icon: <MessageCircle size={18} />,
               title: "Fast WhatsApp support",
-              desc: "Specs, prices, recommendations.",
+              desc: "Quotes, recommendations, and setup guidance.",
             },
           ].map((i) => (
             <div
