@@ -8,7 +8,7 @@ import { firestore } from "@/utils/firebaseConfig";
 import { UploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
-type Category = "phones" | "laptops" | "gadgets" | "clothing" | "shoes";
+type Category = "pos" | "scales" | "cctv" | "printers" | "accessories";
 type UploadedFile = { url?: string } | null | undefined;
 
 export default function NewProductPage() {
@@ -17,7 +17,7 @@ export default function NewProductPage() {
 
   const [form, setForm] = useState({
     name: "",
-    category: "phones" as Category,
+    category: "pos" as Category,
     brand: "",
     price: "",
     dealPrice: "",
@@ -42,7 +42,7 @@ export default function NewProductPage() {
     try {
       await addDoc(collection(firestore, "products"), {
         name: form.name.trim(),
-        category: form.category,
+        category: form.category, // ✅ Tech Essentials categories
         brand: form.brand.trim() || null,
         price,
         dealPrice: form.isDeal ? dealPrice : null,
@@ -71,9 +71,12 @@ export default function NewProductPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="badge mb-3">Admin • Create</div>
-            <h1 className="text-3xl font-extrabold tracking-tight">New Product</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">
+              New Product
+            </h1>
             <p className="mt-2 text-sm text-[--muted]">
-              Add an item to the public catalog. Use UploadThing or paste an image URL.
+              Add an item to the public catalog. Use UploadThing or paste an
+              image URL.
             </p>
           </div>
 
@@ -97,7 +100,9 @@ export default function NewProductPage() {
                 className="input"
                 placeholder="e.g. POS Package (Touch + Printer + Drawer)"
                 value={form.name}
-                onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, name: e.target.value }))
+                }
               />
             </div>
 
@@ -109,14 +114,17 @@ export default function NewProductPage() {
                   className="input"
                   value={form.category}
                   onChange={(e) =>
-                    setForm((s) => ({ ...s, category: e.target.value as Category }))
+                    setForm((s) => ({
+                      ...s,
+                      category: e.target.value as Category,
+                    }))
                   }
                 >
-                  <option value="phones">Phones</option>
-                  <option value="laptops">Laptops</option>
-                  <option value="gadgets">Gadgets</option>
-                  <option value="clothing">Clothing</option>
-                  <option value="shoes">Shoes</option>
+                  <option value="pos">POS Systems</option>
+                  <option value="scales">Scales</option>
+                  <option value="cctv">CCTV</option>
+                  <option value="printers">Printers</option>
+                  <option value="accessories">Accessories</option>
                 </select>
               </div>
 
@@ -128,7 +136,9 @@ export default function NewProductPage() {
                   className="input"
                   placeholder="e.g. Hikvision / Dahua / HP"
                   value={form.brand}
-                  onChange={(e) => setForm((s) => ({ ...s, brand: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((s) => ({ ...s, brand: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -142,7 +152,9 @@ export default function NewProductPage() {
                   inputMode="numeric"
                   placeholder="e.g. 3500"
                   value={form.price}
-                  onChange={(e) => setForm((s) => ({ ...s, price: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((s) => ({ ...s, price: e.target.value }))
+                  }
                 />
                 <div className="text-xs text-[--muted-2]">
                   Enter numbers only (P is added automatically).
@@ -161,7 +173,9 @@ export default function NewProductPage() {
                   <input
                     type="checkbox"
                     checked={form.inStock}
-                    onChange={(e) => setForm((s) => ({ ...s, inStock: e.target.checked }))}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, inStock: e.target.checked }))
+                    }
                     className="h-5 w-5 accent-[--brand-primary]"
                     aria-label="In stock"
                   />
@@ -181,7 +195,9 @@ export default function NewProductPage() {
                 <input
                   type="checkbox"
                   checked={form.isDeal}
-                  onChange={(e) => setForm((s) => ({ ...s, isDeal: e.target.checked }))}
+                  onChange={(e) =>
+                    setForm((s) => ({ ...s, isDeal: e.target.checked }))
+                  }
                   className="h-5 w-5 accent-[--brand-primary]"
                   aria-label="This is a deal"
                 />
@@ -195,7 +211,9 @@ export default function NewProductPage() {
                     inputMode="numeric"
                     placeholder="e.g. 2999"
                     value={form.dealPrice}
-                    onChange={(e) => setForm((s) => ({ ...s, dealPrice: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, dealPrice: e.target.value }))
+                    }
                   />
                 </div>
               )}
@@ -215,7 +233,9 @@ export default function NewProductPage() {
                   <UploadButton<OurFileRouter, "fileUploader">
                     endpoint="fileUploader"
                     onClientUploadComplete={(res) => {
-                      const first: UploadedFile = Array.isArray(res) ? res[0] : null;
+                      const first: UploadedFile = Array.isArray(res)
+                        ? res[0]
+                        : null;
                       const url = first?.url;
                       if (url) setForm((s) => ({ ...s, imageUrl: url }));
                     }}
@@ -228,11 +248,13 @@ export default function NewProductPage() {
 
               {form.imageUrl ? (
                 <div className="mt-3 text-xs text-[--muted-2] break-all">
-                  Current image URL: <span className="text-[--foreground]">{form.imageUrl}</span>
+                  Current image URL:{" "}
+                  <span className="text-[--foreground]">{form.imageUrl}</span>
                 </div>
               ) : (
                 <div className="mt-3 text-xs text-[--muted-2]">
-                  No image yet — will fallback to <span className="text-[--foreground]">/placeholder.png</span>.
+                  No image yet — will fallback to{" "}
+                  <span className="text-[--foreground]">/placeholder.png</span>.
                 </div>
               )}
             </div>
@@ -246,7 +268,9 @@ export default function NewProductPage() {
                 className="input"
                 placeholder="https://..."
                 value={form.imageUrl}
-                onChange={(e) => setForm((s) => ({ ...s, imageUrl: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, imageUrl: e.target.value }))
+                }
               />
             </div>
 
@@ -268,10 +292,18 @@ export default function NewProductPage() {
 
             {/* Bottom actions */}
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <button onClick={() => history.back()} className="btn btn-outline" disabled={saving}>
+              <button
+                onClick={() => history.back()}
+                className="btn btn-outline"
+                disabled={saving}
+              >
                 Cancel
               </button>
-              <button onClick={save} className="btn btn-primary" disabled={saving}>
+              <button
+                onClick={save}
+                className="btn btn-primary"
+                disabled={saving}
+              >
                 {saving ? "Saving…" : "Save Product"}
               </button>
             </div>

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebaseConfig";
 
-type Category = "phones" | "laptops" | "gadgets" | "clothing" | "shoes";
+type Category = "pos" | "scales" | "cctv" | "printers" | "accessories";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function EditProductPage() {
 
   const [form, setForm] = useState({
     name: "",
-    category: "phones" as Category,
+    category: "pos" as Category,
     brand: "",
     price: "",
     dealPrice: "",
@@ -42,9 +42,20 @@ export default function EditProductPage() {
         const p = snap.data() as any;
         if (!alive) return;
 
+        // ✅ normalize old categories if any exist in DB
+        const rawCat = String(p.category ?? "").toLowerCase();
+        const safeCat: Category =
+          rawCat === "pos" ||
+          rawCat === "scales" ||
+          rawCat === "cctv" ||
+          rawCat === "printers" ||
+          rawCat === "accessories"
+            ? (rawCat as Category)
+            : "pos";
+
         setForm({
           name: p.name ?? "",
-          category: (p.category ?? "phones") as Category,
+          category: safeCat,
           brand: p.brand ?? "",
           price: String(p.price ?? ""),
           dealPrice: p.dealPrice ? String(p.dealPrice) : "",
@@ -84,7 +95,7 @@ export default function EditProductPage() {
     try {
       await updateDoc(doc(firestore, "products", id), {
         name: form.name.trim(),
-        category: form.category,
+        category: form.category, // ✅ Tech Essentials categories
         brand: form.brand.trim() || null,
         price,
         dealPrice: form.isDeal ? dealPrice : null,
@@ -183,7 +194,9 @@ export default function EditProductPage() {
                 className="input"
                 placeholder="e.g. POS Package (Touch + Printer + Drawer)"
                 value={form.name}
-                onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, name: e.target.value }))
+                }
               />
             </div>
 
@@ -201,11 +214,11 @@ export default function EditProductPage() {
                     }))
                   }
                 >
-                  <option value="phones">Phones</option>
-                  <option value="laptops">Laptops</option>
-                  <option value="gadgets">Gadgets</option>
-                  <option value="clothing">Clothing</option>
-                  <option value="shoes">Shoes</option>
+                  <option value="pos">POS Systems</option>
+                  <option value="scales">Scales</option>
+                  <option value="cctv">CCTV</option>
+                  <option value="printers">Printers</option>
+                  <option value="accessories">Accessories</option>
                 </select>
               </div>
 

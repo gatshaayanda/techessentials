@@ -11,26 +11,49 @@ import {
   query,
 } from "firebase/firestore";
 import { firestore } from "@/utils/firebaseConfig";
-import { Plus, Trash2, Pencil, Tag, RefreshCw } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  Tag,
+  RefreshCw,
+  Store,
+  Scale,
+  Cctv,
+  Printer,
+  PlugZap,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
+
+type Category = "pos" | "scales" | "cctv" | "printers" | "accessories";
 
 type Product = {
   id: string;
   name: string;
-  category: string;
+  category: Category | string;
   price: number;
-  dealPrice?: number;
+  dealPrice?: number | null;
   isDeal: boolean;
   inStock: boolean;
   updatedAt?: any;
 };
 
-function prettyCat(s: string) {
-  const v = (s || "").trim().toLowerCase();
-  if (!v) return "Other";
-  return v
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\w/g, (m) => m.toUpperCase());
+const CAT_UI: Record<Category, { label: string; icon: React.ReactNode }> = {
+  pos: { label: "POS Systems", icon: <Store size={16} /> },
+  scales: { label: "Scales", icon: <Scale size={16} /> },
+  cctv: { label: "CCTV", icon: <Cctv size={16} /> },
+  printers: { label: "Printers", icon: <Printer size={16} /> },
+  accessories: { label: "Accessories", icon: <PlugZap size={16} /> },
+};
+
+function safeCat(x: string): Category | null {
+  const v = (x || "").trim().toLowerCase();
+  if (v === "pos") return "pos";
+  if (v === "scales") return "scales";
+  if (v === "cctv") return "cctv";
+  if (v === "printers") return "printers";
+  if (v === "accessories") return "accessories";
+  return null;
 }
 
 export default function AdminProductsPage() {
@@ -38,14 +61,22 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
 
   const searchParams = useSearchParams();
-  const cat = (searchParams.get("cat") || "").toLowerCase();
+  const rawCat = (searchParams.get("cat") || "").toLowerCase(); // pos/scales/cctv/printers/accessories/deals
+  const cat = rawCat === "deals" ? "deals" : safeCat(rawCat);
 
   const load = async () => {
     setLoading(true);
     try {
-      const q = query(collection(firestore, "products"), orderBy("updatedAt", "desc"));
+      // NOTE: orderBy(updatedAt) requires that field exists for all docs.
+      // If some docs don't have updatedAt yet, add it or remove orderBy.
+      const q = query(
+        collection(firestore, "products"),
+        orderBy("updatedAt", "desc")
+      );
       const snap = await getDocs(q);
-      setItems(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Product[]);
+      setItems(
+        snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Product[]
+      );
     } catch (e) {
       console.error("Admin products load failed:", e);
       setItems([]);
@@ -61,8 +92,10 @@ export default function AdminProductsPage() {
 
   const filtered = useMemo(() => {
     if (!cat) return items;
-    if (cat === "deals") return items.filter((p) => p.isDeal);
-    return items.filter((p) => (p.category || "").toLowerCase() === cat);
+    if (cat === "deals") return items.filter((p) => !!p.isDeal);
+    return items.filter(
+      (p) => (p.category || "").toLowerCase() === (cat as string)
+    );
   }, [items, cat]);
 
   const grouped = useMemo(() => {
@@ -86,7 +119,12 @@ export default function AdminProductsPage() {
     }
   };
 
-  const titleRight = cat ? `• ${prettyCat(cat)}` : "";
+  const pageTitle =
+    cat === "deals"
+      ? "Products • Deals"
+      : cat
+      ? `Products • ${CAT_UI[cat].label}`
+      : "Products";
 
   return (
     <main className="bg-[--background] text-[--foreground]">
@@ -99,12 +137,58 @@ export default function AdminProductsPage() {
             </div>
 
             <h1 className="text-3xl font-extrabold tracking-tight">
-              Products <span className="text-[--muted] font-bold">{titleRight}</span>
+              {pageTitle}
             </h1>
 
             <p className="mt-2 text-sm text-[--muted]">
-              Add, edit, delete products for the public store.
+              Manage Tech Essentials catalog items (POS, scales, CCTV, printers,
+              accessories).
             </p>
+
+            {/* Category pills */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href="/admin/dashboard/products" className="menu-link">
+                All
+              </Link>
+
+              {(
+                Object.keys(CAT_UI) as Array<keyof typeof CAT_UI>
+              ).map((k) => (
+                <Link
+                  key={k}
+                  href={`/admin/dashboard/products?cat=${k}`}
+                  className="menu-link"
+                  style={
+                    cat === k
+                      ? {
+                          background: "rgba(11,94,215,0.08)",
+                          borderColor: "rgba(11,94,215,0.25)",
+                          color: "var(--foreground)",
+                        }
+                      : undefined
+                  }
+                >
+                  <span className="opacity-90">{CAT_UI[k].icon}</span>
+                  {CAT_UI[k].label}
+                </Link>
+              ))}
+
+              <Link
+                href="/admin/dashboard/products?cat=deals"
+                className="menu-link"
+                style={
+                  cat === "deals"
+                    ? {
+                        background: "rgba(11,94,215,0.08)",
+                        borderColor: "rgba(11,94,215,0.25)",
+                        color: "var(--foreground)",
+                      }
+                    : undefined
+                }
+              >
+                <Tag size={16} /> Deals
+              </Link>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -140,7 +224,7 @@ export default function AdminProductsPage() {
           ) : filtered.length === 0 ? (
             <div className="card">
               <div className="card-inner">
-                <div className="text-lg font-extrabold">No products yet</div>
+                <div className="text-lg font-extrabold">No items yet</div>
                 <p className="mt-1 text-sm text-[--muted]">
                   Click <span className="font-semibold">New Product</span> to add your first listing.
                 </p>
@@ -155,7 +239,10 @@ export default function AdminProductsPage() {
                     {/* Group header */}
                     <div className="px-5 py-4 border-b border-[--border] bg-[--surface] flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="font-extrabold">{prettyCat(catKey)}</div>
+                        <div className="font-extrabold">
+                          {(CAT_UI[safeCat(catKey) as Category]?.label) ||
+                            catKey.toUpperCase()}
+                        </div>
                         <span className="badge">{grouped[catKey].length} item(s)</span>
                       </div>
 
@@ -170,7 +257,10 @@ export default function AdminProductsPage() {
                     {/* Items */}
                     <div className="divide-y divide-[--border] bg-[--surface]">
                       {grouped[catKey].map((p) => {
-                        const hasDeal = p.isDeal && p.dealPrice && p.dealPrice < p.price;
+                        const hasDeal =
+                          p.isDeal &&
+                          typeof p.dealPrice === "number" &&
+                          p.dealPrice < p.price;
 
                         return (
                           <div
