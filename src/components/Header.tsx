@@ -19,7 +19,6 @@ import {
   Radio,
   Wrench,
 } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const WHATSAPP_NUMBER = "+26772545765";
 
@@ -141,7 +140,7 @@ export default function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-          <ThemeToggle />
+
 
           <a
             href={waLink("Hi Tech Essentials 👋 I need help with POS / Scales / CCTV.")}
@@ -281,7 +280,6 @@ export default function Header() {
               <span className="text-sm font-semibold text-[--muted]">
                 Theme
               </span>
-              <ThemeToggle />
             </div>
 
             <div className="h-px bg-white/10 my-2" />

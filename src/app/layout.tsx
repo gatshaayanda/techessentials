@@ -7,7 +7,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Loader from "@/components/AdminHubLoader";
 import ChatWidget from "@/components/ChatWidget";
-import ThemeHydrationScript from "@/components/ThemeHydrationScript";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 
 import { Analytics } from "@vercel/analytics/next";
@@ -43,7 +42,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} ${inter.variable}`}>
       <head>
-        <ThemeHydrationScript />
       </head>
 
       <body className="antialiased bg-[--background] text-[--foreground] font-sans">
