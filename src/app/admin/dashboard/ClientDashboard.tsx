@@ -10,6 +10,7 @@ import {
   Tag,
   LogOut,
   Package,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export default function ClientDashboard() {
@@ -21,6 +22,13 @@ export default function ClientDashboard() {
   };
 
   const sections = [
+    {
+  title: "Manage Highlights",
+  desc: "Update homepage hero image + home gallery tiles.",
+  icon: <ImageIcon size={22} />,
+  href: "/admin/dashboard/highlights",
+},
+
     {
       title: 'Manage POS Systems',
       desc: 'Add, edit, and update POS packages, prices, and stock.',

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
   collection,
   getDocs,
@@ -10,229 +10,434 @@ import {
   doc,
   orderBy,
   query,
-} from 'firebase/firestore';
-import { firestore } from '@/utils/firebaseConfig';
-import { uploadFiles } from '@/utils/uploadthing';
-import { Plus, Trash2 } from 'lucide-react';
+  serverTimestamp,
+} from "firebase/firestore";
+import { firestore } from "@/utils/firebaseConfig";
+import { UploadButton } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import { Plus, Trash2, RefreshCw } from "lucide-react";
 
 type Highlight = {
-  id?: string;
+  id: string;
   title: string;
   desc: string;
   imageUrl: string;
   order: number;
   showOnHome: boolean;
   isHero?: boolean;
+  updatedAt?: any;
 };
+
+type UploadedFile = { url?: string } | null | undefined;
+
+function pretty(n: number) {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.floor(n));
+}
 
 export default function HighlightsAdminPage() {
   const [items, setItems] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [newImage, setNewImage] = useState<File | null>(null);
-  const [newPreview, setNewPreview] = useState<string>('');
+  const [savingNew, setSavingNew] = useState(false);
 
-  const collectionPath = 'highlights';
+  // New highlight draft
+  const [draft, setDraft] = useState({
+    title: "New Highlight",
+    desc: "Enter description…",
+    imageUrl: "",
+    showOnHome: false,
+    isHero: false,
+  });
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const q = query(collection(firestore, collectionPath), orderBy('order', 'asc'));
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Highlight) }));
-        setItems(data);
-      } catch (err) {
-        console.error('Error fetching highlights:', err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const heroId = useMemo(
+    () => items.find((x) => !!x.isHero)?.id || null,
+    [items]
+  );
 
-  const handleAddHighlight = async () => {
-    if (!newImage) return alert('Please select an image.');
-    setSaving(true);
+  const load = async () => {
+    setLoading(true);
     try {
-      const uploaded = await uploadFiles('fileUploader' as any, { files: [newImage] });
-      const imageUrl = uploaded?.[0]?.url || '';
-      await addDoc(collection(firestore, collectionPath), {
-        title: 'New Highlight',
-        desc: 'Enter description...',
-        imageUrl,
-        order: items.length + 1,
-        showOnHome: false,
-        isHero: false,
-        admin_id: 'admin',
-      });
-      window.location.reload();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to add highlight');
+      const q = query(
+        collection(firestore, "highlights"),
+        orderBy("order", "asc")
+      );
+      const snap = await getDocs(q);
+      const data = snap.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as any),
+      })) as Highlight[];
+      setItems(data);
+    } catch (e) {
+      console.error("Highlights load failed:", e);
+      setItems([]);
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const handleUpdate = async (id: string, field: keyof Highlight, value: any) => {
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const createHighlight = async () => {
+    if (!draft.imageUrl.trim()) {
+      alert("Please upload an image (or paste an image URL).");
+      return;
+    }
+
+    setSavingNew(true);
     try {
-      const current = items.find((i) => i.id === id);
-      if (!current || current[field] === value) return; // skip if no change
+      const nextOrder =
+        items.length > 0
+          ? Math.max(...items.map((x) => Number(x.order) || 0)) + 1
+          : 1;
 
-      const ref = doc(firestore, collectionPath, id);
-      await updateDoc(ref, { [field]: value });
+      const ref = await addDoc(collection(firestore, "highlights"), {
+        title: draft.title.trim() || "New Highlight",
+        desc: draft.desc.trim() || "",
+        imageUrl: draft.imageUrl.trim(),
+        order: nextOrder,
+        showOnHome: !!draft.showOnHome,
+        isHero: !!draft.isHero,
+        admin_id: "admin",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
 
-      // If setting new hero, unset others
-      if (field === 'isHero' && value === true) {
-        const others = items.filter((i) => i.id !== id && i.isHero);
+      // If new one is hero, unset others (local + firestore)
+      if (draft.isHero) {
+        const others = items.filter((x) => x.id !== ref.id && x.isHero);
         for (const o of others) {
-          const otherRef = doc(firestore, collectionPath, o.id!);
-          await updateDoc(otherRef, { isHero: false });
+          await updateDoc(doc(firestore, "highlights", o.id), {
+            isHero: false,
+            updatedAt: serverTimestamp(),
+          });
         }
       }
 
-      setItems((prev) =>
-        prev.map((i) =>
-          i.id === id
-            ? { ...i, [field]: value }
-            : field === 'isHero' && value === true
-            ? { ...i, isHero: false }
-            : i
-        )
-      );
-    } catch (err) {
-      console.error('Update failed', err);
+      // Update local state without reload
+      const newItem: Highlight = {
+        id: ref.id,
+        title: draft.title.trim() || "New Highlight",
+        desc: draft.desc.trim() || "",
+        imageUrl: draft.imageUrl.trim(),
+        order: nextOrder,
+        showOnHome: !!draft.showOnHome,
+        isHero: !!draft.isHero,
+      };
+
+      setItems((prev) => {
+        const cleared =
+          draft.isHero ? prev.map((p) => ({ ...p, isHero: false })) : prev;
+        return [...cleared, newItem].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      });
+
+      setDraft({
+        title: "New Highlight",
+        desc: "Enter description…",
+        imageUrl: "",
+        showOnHome: false,
+        isHero: false,
+      });
+    } catch (e) {
+      console.error("Create highlight failed:", e);
+      alert("Failed to create highlight.");
+    } finally {
+      setSavingNew(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this highlight?')) return;
+  const updateField = async (id: string, patch: Partial<Highlight>) => {
+    const current = items.find((x) => x.id === id);
+    if (!current) return;
+
+    // skip if nothing actually changes
+    const keys = Object.keys(patch) as (keyof Highlight)[];
+    if (keys.every((k) => (current as any)[k] === (patch as any)[k])) return;
+
     try {
-      await deleteDoc(doc(firestore, collectionPath, id));
-      setItems((prev) => prev.filter((i) => i.id !== id));
-    } catch (err) {
-      console.error('Delete failed', err);
+      // If turning hero ON: unset all others
+      if (patch.isHero === true) {
+        const others = items.filter((x) => x.id !== id && x.isHero);
+        for (const o of others) {
+          await updateDoc(doc(firestore, "highlights", o.id), {
+            isHero: false,
+            updatedAt: serverTimestamp(),
+          });
+        }
+        setItems((prev) =>
+          prev.map((x) => (x.id === id ? { ...x, ...patch } : { ...x, isHero: false }))
+        );
+      } else {
+        setItems((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+      }
+
+      await updateDoc(doc(firestore, "highlights", id), {
+        ...patch,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (e) {
+      console.error("Update failed:", e);
+      alert("Update failed. Check console.");
+      // reload state from firestore (truth)
+      load();
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Delete this highlight?")) return;
+    try {
+      await deleteDoc(doc(firestore, "highlights", id));
+      setItems((prev) => prev.filter((x) => x.id !== id));
+    } catch (e) {
+      console.error("Delete failed:", e);
+      alert("Delete failed. Check console.");
     }
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 text-black p-8 font-sans">
-      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">🏞️ Manage Highlights</h1>
-      <p className="text-sm text-gray-700 mb-8">
-        These images power both the <b>Home Page Preview</b> and the <b>“Things To Do”</b> page.
-        You can also mark one as the <b>Homepage Hero</b>.
-      </p>
+    <main className="bg-[--background] text-[--foreground]">
+      <section className="container py-10">
+        {/* Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <div className="badge mb-3">Admin • Highlights</div>
+            <h1 className="text-3xl font-extrabold tracking-tight">Manage Highlights</h1>
+            <p className="mt-2 text-sm text-[--muted]">
+              These power the homepage hero image and any home gallery. Set exactly one item as <b>Hero</b>.
+            </p>
+            {heroId ? (
+              <p className="mt-2 text-xs text-[--muted-2]">
+                Current Hero ID: <span className="text-[--foreground]">{heroId}</span>
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-[--muted-2]">
+                No hero set yet — homepage will fallback to <span className="text-[--foreground]">/placeholder.png</span>.
+              </p>
+            )}
+          </div>
 
-      {/* Add New */}
-      <div className="bg-white p-5 rounded-lg shadow-md mb-10 border border-gray-200">
-        <h2 className="font-semibold mb-3 flex items-center gap-2">
-          <Plus size={18} /> Add New Highlight
-        </h2>
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0] || null;
-              setNewImage(file);
-              if (file) setNewPreview(URL.createObjectURL(file));
-            }}
-            className="border p-2 rounded w-full sm:w-1/2"
-          />
-          <button
-            disabled={saving}
-            onClick={handleAddHighlight}
-            className="bg-black text-white px-5 py-2 rounded hover:bg-gray-800 disabled:opacity-50"
-          >
-            {saving ? 'Uploading...' : 'Add Highlight'}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={load} className="btn btn-outline">
+              <RefreshCw size={16} /> Refresh
+            </button>
+          </div>
         </div>
-        {newPreview && (
-          <img
-            src={newPreview}
-            alt="New preview"
-            className="mt-4 rounded-lg shadow-md max-h-60 object-cover border"
-          />
-        )}
-      </div>
 
-      {/* List */}
-      {loading ? (
-        <p className="text-gray-700">Loading highlights...</p>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col"
-            >
-              <img
-                src={item.imageUrl || '/placeholder.png'}
-                alt={item.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4 flex flex-col flex-grow">
+        {/* Create card */}
+        <div className="mt-7 card">
+          <div className="card-inner space-y-4">
+            <div className="flex items-center gap-2 font-extrabold">
+              <Plus size={18} /> Add new highlight
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-bold">Title</label>
                 <input
-                  type="text"
-                  value={item.title}
-                  onChange={(e) => handleUpdate(item.id!, 'title', e.target.value)}
-                  className="font-semibold text-lg mb-1 border-b border-gray-300 focus:outline-none text-black"
+                  className="input"
+                  value={draft.title}
+                  onChange={(e) => setDraft((s) => ({ ...s, title: e.target.value }))}
+                  placeholder="e.g. CCTV Packages & Installations"
                 />
-                <textarea
-                  value={item.desc}
-                  onChange={(e) => handleUpdate(item.id!, 'desc', e.target.value)}
-                  className="text-sm text-black mb-2 border rounded p-2 flex-grow resize-none bg-gray-50"
-                  rows={3}
-                />
+              </div>
 
-                {/* Controls */}
-                <div className="flex flex-col gap-2 mt-2 text-sm text-black">
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-1">
-                      <input
-                        type="checkbox"
-                        checked={!!item.showOnHome}
-                        onChange={(e) =>
-                          handleUpdate(item.id!, 'showOnHome', e.target.checked)
-                        }
-                      />
-                      Show on Home
-                    </label>
-                    <label className="flex items-center gap-1">
-                      <input
-                        type="checkbox"
-                        checked={!!item.isHero}
-                        onChange={(e) =>
-                          handleUpdate(item.id!, 'isHero', e.target.checked)
-                        }
-                      />
-                      Set as Hero
-                    </label>
+              <div className="space-y-2">
+                <label className="text-sm font-bold">Image</label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-sm text-[--muted]">
+                    Upload with UploadThing or paste a URL below.
                   </div>
 
-                  <div className="flex items-center gap-1 justify-end">
-                    <span>Order:</span>
-                    <input
-                      type="number"
-                      value={item.order}
-                      onChange={(e) =>
-                        handleUpdate(item.id!, 'order', Number(e.target.value))
-                      }
-                      className="w-16 border rounded p-1 text-center bg-gray-50"
-                    />
-                  </div>
+                  <UploadButton<OurFileRouter, "fileUploader">
+                    endpoint="fileUploader"
+                    onClientUploadComplete={(res) => {
+                      const first: UploadedFile = Array.isArray(res) ? res[0] : null;
+                      const url = first?.url;
+                      if (url) setDraft((s) => ({ ...s, imageUrl: url }));
+                    }}
+                    onUploadError={(error: Error) => {
+                      alert(`Upload failed: ${error.message}`);
+                    }}
+                  />
                 </div>
 
-                <button
-                  onClick={() => handleDelete(item.id!)}
-                  className="mt-3 flex items-center justify-center gap-2 text-red-600 hover:text-red-700 text-sm"
-                >
-                  <Trash2 size={14} /> Delete
-                </button>
+                <input
+                  className="input"
+                  value={draft.imageUrl}
+                  onChange={(e) => setDraft((s) => ({ ...s, imageUrl: e.target.value }))}
+                  placeholder="https://..."
+                />
+
+                {draft.imageUrl ? (
+                  <div className="text-xs text-[--muted-2] break-all">
+                    Current: <span className="text-[--foreground]">{draft.imageUrl}</span>
+                  </div>
+                ) : (
+                  <div className="text-xs text-[--muted-2]">
+                    No image yet — required to save.
+                  </div>
+                )}
               </div>
             </div>
-          ))}
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold">Description</label>
+              <textarea
+                className="input"
+                rows={3}
+                value={draft.desc}
+                onChange={(e) => setDraft((s) => ({ ...s, desc: e.target.value }))}
+                placeholder="Short caption shown on hero card."
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap gap-5 text-sm">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-[--brand-primary]"
+                    checked={draft.showOnHome}
+                    onChange={(e) =>
+                      setDraft((s) => ({ ...s, showOnHome: e.target.checked }))
+                    }
+                  />
+                  Show on Home gallery
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-[--brand-primary]"
+                    checked={draft.isHero}
+                    onChange={(e) => setDraft((s) => ({ ...s, isHero: e.target.checked }))}
+                  />
+                  Set as Hero
+                </label>
+              </div>
+
+              <button
+                onClick={createHighlight}
+                disabled={savingNew}
+                className="btn btn-primary"
+              >
+                {savingNew ? "Saving…" : "Create Highlight"}
+              </button>
+            </div>
+          </div>
         </div>
-      )}
+
+        {/* List */}
+        <div className="mt-8">
+          {loading ? (
+            <div className="card">
+              <div className="card-inner">Loading highlights…</div>
+            </div>
+          ) : items.length === 0 ? (
+            <div className="card">
+              <div className="card-inner">
+                No highlights yet. Create one above to control the homepage image.
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((item) => (
+                <div key={item.id} className="card overflow-hidden">
+                  <div className="relative aspect-[4/3] bg-[--surface-2]">
+                    {/* use img to avoid next/image domain config issues for admin */}
+                    <img
+                      src={item.imageUrl || "/placeholder.png"}
+                      alt={item.title}
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute top-3 left-3 flex gap-2">
+                      {item.isHero ? <span className="tag">Hero</span> : null}
+                      {item.showOnHome ? <span className="tag">Home</span> : null}
+                    </div>
+                  </div>
+
+                  <div className="card-inner space-y-3">
+                    <input
+                      className="input"
+                      value={item.title}
+                      onChange={(e) => updateField(item.id, { title: e.target.value })}
+                    />
+
+                    <textarea
+                      className="input"
+                      rows={3}
+                      value={item.desc}
+                      onChange={(e) => updateField(item.id, { desc: e.target.value })}
+                    />
+
+                    <input
+                      className="input"
+                      value={item.imageUrl}
+                      onChange={(e) => updateField(item.id, { imageUrl: e.target.value })}
+                      placeholder="Image URL"
+                    />
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-[--brand-primary]"
+                          checked={!!item.showOnHome}
+                          onChange={(e) =>
+                            updateField(item.id, { showOnHome: e.target.checked })
+                          }
+                        />
+                        Show on Home
+                      </label>
+
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-[--brand-primary]"
+                          checked={!!item.isHero}
+                          onChange={(e) => updateField(item.id, { isHero: e.target.checked })}
+                        />
+                        Set as Hero
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-[--muted]">Order:</span>
+                        <input
+                          type="number"
+                          className="input"
+                          style={{ width: 90, padding: "10px 12px" }}
+                          value={pretty(Number(item.order))}
+                          onChange={(e) =>
+                            updateField(item.id, { order: pretty(Number(e.target.value)) })
+                          }
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => remove(item.id)}
+                        className="btn"
+                        style={{
+                          background: "rgba(239,68,68,0.10)",
+                          borderColor: "rgba(239,68,68,0.25)",
+                          color: "rgba(239,68,68,0.95)",
+                          borderWidth: 1,
+                          borderStyle: "solid",
+                        }}
+                      >
+                        <Trash2 size={16} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </main>
   );
 }
