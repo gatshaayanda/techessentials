@@ -1,33 +1,34 @@
 @import "tailwindcss";
 
 /* =========================================================
-   Tech Essentials — Global Styles (POS / Scales / CCTV)
-   - Single :root tokens
-   - Dark mode via [data-theme="dark"]
+   Tech Essentials — Global Styles (Industrial / Pro Hardware)
+   - Dark-first (matches logo renders)
+   - Clean, high-contrast text
+   - No iHub neon shimmer / no “light weirdness”
    ========================================================= */
 
 :root {
   /* Base */
-  --background: #f7f9fc;     /* clean off-white */
-  --foreground: #0f172a;     /* deep navy text */
+  --background: #070b12;        /* deep navy/black */
+  --foreground: #e8eef9;        /* clean readable white */
 
   /* Surfaces */
-  --surface: #ffffff;        /* cards/nav */
-  --surface-2: #eef2f7;      /* soft panels */
-  --border: rgba(15, 23, 42, 0.10);
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(255, 255, 255, 0.035);
+  --border: rgba(255, 255, 255, 0.10);
 
-  /* Brand (Tech Essentials blue) */
-  --brand-primary: #0b5ed7;  /* strong blue */
-  --brand-secondary: #0ea5e9;/* sky blue */
-  --brand-accent: #22c55e;   /* support green (optional) */
+  /* Brand (logo teal → blue) */
+  --brand-primary: #19d3c5;     /* teal */
+  --brand-secondary: #1a6cff;   /* blue */
+  --brand-accent: #7dd3fc;      /* soft cyan */
 
   /* Text */
-  --muted: rgba(15, 23, 42, 0.70);
-  --muted-2: rgba(15, 23, 42, 0.55);
+  --muted: rgba(232, 238, 249, 0.72);
+  --muted-2: rgba(232, 238, 249, 0.52);
 
   /* Effects */
-  --ring: rgba(11, 94, 215, 0.25);
-  --shadow: 0 10px 28px rgba(15, 23, 42, 0.10);
+  --ring: rgba(25, 211, 197, 0.25);
+  --shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
 
   /* Fonts */
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Apple Color Emoji",
@@ -36,25 +37,20 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* Optional: if you already toggle [data-theme="dark"], keep this.
-   If your app uses light as default, swap values here accordingly. */
-[data-theme="dark"] {
-  --background: #070a12;
-  --foreground: #eef2ff;
+/* Optional light theme if you toggle it */
+[data-theme="light"] {
+  --background: #f7f9fc;
+  --foreground: #0b1220;
 
-  --surface: #0b1220;
-  --surface-2: #0a1020;
-  --border: rgba(255, 255, 255, 0.12);
+  --surface: rgba(11, 18, 32, 0.035);
+  --surface-2: rgba(11, 18, 32, 0.02);
+  --border: rgba(11, 18, 32, 0.12);
 
-  --brand-primary: #60a5fa;
-  --brand-secondary: #38bdf8;
-  --brand-accent: #34d399;
+  --muted: rgba(11, 18, 32, 0.72);
+  --muted-2: rgba(11, 18, 32, 0.52);
 
-  --muted: rgba(238, 242, 255, 0.72);
-  --muted-2: rgba(238, 242, 255, 0.55);
-
-  --ring: rgba(96, 165, 250, 0.40);
-  --shadow: 0 12px 34px rgba(0, 0, 0, 0.48);
+  --ring: rgba(26, 108, 255, 0.18);
+  --shadow: 0 18px 45px rgba(11, 18, 32, 0.12);
 }
 
 * {
@@ -69,7 +65,17 @@ body {
 body {
   margin: 0;
   padding: 0;
-  background: var(--background);
+  background: radial-gradient(
+      1200px 800px at 25% 10%,
+      rgba(25, 211, 197, 0.10),
+      transparent 55%
+    ),
+    radial-gradient(
+      1000px 700px at 80% 30%,
+      rgba(26, 108, 255, 0.10),
+      transparent 60%
+    ),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   line-height: 1.65;
@@ -77,7 +83,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Make media behave */
+/* Media */
 img,
 video {
   max-width: 100%;
@@ -85,23 +91,17 @@ video {
   display: block;
 }
 
-/* =========================================================
-   Layout helpers
-   ========================================================= */
-
+/* Layout */
 .container {
   max-width: 1240px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* =========================================================
-   Typography
-   ========================================================= */
-
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: -0.02em;
   color: var(--foreground);
 }
@@ -116,30 +116,28 @@ small,
   color: var(--muted-2);
 }
 
-/* =========================================================
-   Links
-   ========================================================= */
-
+/* Links */
 a {
   color: var(--foreground);
   text-decoration: none;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition: opacity 0.18s ease, color 0.18s ease;
 }
 
 a:hover,
 a:focus {
-  opacity: 0.9;
+  opacity: 0.92;
   outline: none;
 }
 
-/* =========================================================
-   Components (simple utility classes to reuse everywhere)
-   ========================================================= */
-
+/* Components */
 .card {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.03), rgba(15, 23, 42, 0.01));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.03)
+  );
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 1.1rem;
   box-shadow: var(--shadow);
 }
 
@@ -147,19 +145,18 @@ a:focus {
   padding: 1rem;
 }
 
-/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.7rem 1.05rem;
-  border-radius: 0.75rem;
-  font-weight: 700;
+  padding: 0.72rem 1.05rem;
+  border-radius: 0.85rem;
+  font-weight: 800;
   font-family: var(--font-sans);
   cursor: pointer;
   border: 1px solid transparent;
-  transition: transform 0.12s ease, opacity 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  transition: transform 0.12s ease, opacity 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
   user-select: none;
 }
 
@@ -169,8 +166,8 @@ a:focus {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-  color: #ffffff;
-  box-shadow: 0 10px 22px rgba(11, 94, 215, 0.18);
+  color: #071018;
+  box-shadow: 0 14px 30px rgba(26, 108, 255, 0.18);
 }
 
 .btn-primary:hover,
@@ -179,80 +176,79 @@ a:focus {
 }
 
 .btn-outline {
-  background: rgba(15, 23, 42, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   border-color: var(--border);
   color: var(--foreground);
 }
 
 .btn-outline:hover,
 .btn-outline:focus {
-  background: rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 /* Inputs */
 .input {
   width: 100%;
-  background: rgba(15, 23, 42, 0.03);
+  background: rgba(255, 255, 255, 0.045);
   color: var(--foreground);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.8rem 0.9rem;
+  border-radius: 0.85rem;
+  padding: 0.85rem 0.95rem;
   font-size: 1rem;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
 .input::placeholder {
-  color: rgba(15, 23, 42, 0.45);
+  color: rgba(232, 238, 249, 0.55);
+}
+
+[data-theme="light"] .input::placeholder {
+  color: rgba(11, 18, 32, 0.45);
 }
 
 .input:focus {
   outline: none;
-  border-color: rgba(11, 94, 215, 0.55);
+  border-color: rgba(25, 211, 197, 0.55);
   box-shadow: 0 0 0 4px var(--ring);
-  background: rgba(15, 23, 42, 0.04);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-/* Small label badges (e.g. "New", "Promo", "In Stock") */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.25rem 0.6rem;
+  padding: 0.28rem 0.65rem;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(15, 23, 42, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--muted);
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
-/* Menu links (header/category nav) */
 .menu-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.85rem;
-  border-radius: 0.75rem;
+  gap: 0.55rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.95rem;
   color: var(--muted);
-  font-weight: 700;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  font-weight: 850;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
   border: 1px solid transparent;
 }
 
 .menu-link:hover,
 .menu-link:focus {
   color: var(--foreground);
-  background: rgba(15, 23, 42, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   border-color: var(--border);
   outline: none;
 }
 
-/* =========================================================
-   Optional: nicer selection + scrollbar
-   ========================================================= */
-
+/* Selection + scrollbar */
 ::selection {
-  background: rgba(11, 94, 215, 0.22);
+  background: rgba(25, 211, 197, 0.22);
 }
 
 ::-webkit-scrollbar {
@@ -260,10 +256,10 @@ a:focus {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.14);
+  background: rgba(255, 255, 255, 0.14);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.20);
+  background: rgba(255, 255, 255, 0.20);
 }

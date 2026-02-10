@@ -1,18 +1,22 @@
 // src/app/admin/layout.tsx
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import React, { ReactNode } from 'react';
+import type { ReactNode } from "react";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: 'iHub – Admin',
+  title: "Tech Essentials – Admin",
 };
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const store = await cookies();
-  const token = store.get('admin_token')?.value;
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  // ✅ works whether cookies() is typed as async or sync in your Next version
+  const token = (await cookies()).get("admin_token")?.value;
 
   if (!token) {
-    redirect('/login');
+    redirect("/login");
   }
 
   return <>{children}</>;

@@ -2,11 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import {
-  Smartphone,
-  Laptop,
-  Watch,
-  Shirt,
-  Footprints,
+  Monitor,
+  Scale,
+  Cctv,
+  Printer,
+  Usb,
   Tag,
   LogOut,
   Package,
@@ -22,38 +22,38 @@ export default function ClientDashboard() {
 
   const sections = [
     {
-      title: 'Manage Phones',
-      desc: 'Add, edit, and update phone models & prices.',
-      icon: <Smartphone size={22} />,
-      href: '/admin/dashboard/products?cat=phones',
+      title: 'Manage POS Systems',
+      desc: 'Add, edit, and update POS packages, prices, and stock.',
+      icon: <Monitor size={22} />,
+      href: '/admin/dashboard/products?cat=pos',
     },
     {
-      title: 'Manage Laptops',
-      desc: 'Add laptop listings, prices, and stock status.',
-      icon: <Laptop size={22} />,
-      href: '/admin/dashboard/products?cat=laptops',
+      title: 'Manage Scales',
+      desc: 'Price computing scales, label scales, pole displays, and more.',
+      icon: <Scale size={22} />,
+      href: '/admin/dashboard/products?cat=scales',
     },
     {
-      title: 'Manage Gadgets',
-      desc: 'Headphones, watches, accessories, and more.',
-      icon: <Watch size={22} />,
-      href: '/admin/dashboard/products?cat=gadgets',
+      title: 'Manage CCTV Packages',
+      desc: 'Cameras, DVR/NVR kits, storage options, and installation bundles.',
+      icon: <Cctv size={22} />,
+      href: '/admin/dashboard/products?cat=cctv',
     },
     {
-      title: 'Manage Clothing',
-      desc: 'Add clothing products you can order for customers.',
-      icon: <Shirt size={22} />,
-      href: '/admin/dashboard/products?cat=clothing',
+      title: 'Manage Printers',
+      desc: 'Receipt printers, label printers, and compatible POS printing gear.',
+      icon: <Printer size={22} />,
+      href: '/admin/dashboard/products?cat=printers',
     },
     {
-      title: 'Manage Shoes',
-      desc: 'Add shoes & sizes you can order.',
-      icon: <Footprints size={22} />,
-      href: '/admin/dashboard/products?cat=shoes',
+      title: 'Manage Accessories',
+      desc: 'Scanners, cash drawers, cables, adapters, and other add-ons.',
+      icon: <Usb size={22} />,
+      href: '/admin/dashboard/products?cat=accessories',
     },
     {
       title: 'Manage Deals',
-      desc: 'Mark items as deals & set promo prices.',
+      desc: 'Mark items as deals & set promo pricing.',
       icon: <Tag size={22} />,
       href: '/admin/dashboard/products?cat=deals',
     },
@@ -70,7 +70,7 @@ export default function ClientDashboard() {
       {/* Header */}
       <header className="flex items-center justify-between mb-10">
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          ⚡ iHub Admin
+          Tech Essentials Admin
         </h1>
 
         <button
@@ -103,8 +103,8 @@ export default function ClientDashboard() {
       {/* Metrics (static placeholders — keep wiring unchanged) */}
       <section className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          ['Phones', '—'],
-          ['Laptops', '—'],
+          ['POS', '—'],
+          ['CCTV', '—'],
           ['Deals', '—'],
         ].map(([label, value]) => (
           <div

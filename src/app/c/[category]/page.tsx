@@ -6,9 +6,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "@/utils/firebaseConfig";
+import { MessageCircle, BadgeCheck, ArrowLeft } from "lucide-react";
 
 const WHATSAPP_NUMBER = "+26772545765";
-
 const FACEBOOK_PAGE_PRIMARY = "https://www.facebook.com/techessentialz/";
 const FACEBOOK_PAGE_SECONDARY = "https://www.facebook.com/techessentialsbw/";
 
@@ -28,8 +28,8 @@ type Product = {
 };
 
 function waLink(text: string) {
-  const phone = WHATSAPP_NUMBER.replace("+", "");
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  const digits = WHATSAPP_NUMBER.replace(/[^\d]/g, "");
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
 const VALID_CATEGORIES: Category[] = ["pos", "scales", "cctv", "printers", "accessories"];
@@ -59,18 +59,9 @@ export default function CategoryPage() {
     (async () => {
       try {
         setLoading(true);
-
-        // ✅ no orderBy → no composite index required
-        const q = query(
-          collection(firestore, "products"),
-          where("category", "==", category)
-        );
+        const q = query(collection(firestore, "products"), where("category", "==", category));
         const snap = await getDocs(q);
-
-        const data = snap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as any),
-        })) as Product[];
+        const data = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Product[];
         if (alive) setItems(data);
       } catch (e) {
         console.error("Load category products failed:", e);
@@ -80,85 +71,75 @@ export default function CategoryPage() {
       }
     })();
 
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [category]);
 
   return (
     <main id="main" className="bg-[--background] text-[--foreground]">
       <section className="container py-10">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              {label}
-            </h1>
-            <p className="text-sm text-white/70 mt-1">
-              Browse packages and tap “Order on WhatsApp”.
-            </p>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Link href="/" className="btn btn-outline">
+                <ArrowLeft size={18} /> Home
+              </Link>
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{label}</h1>
+                <p className="text-sm text-[--muted] mt-1">
+                  Browse packages and request a quote via WhatsApp.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <a className="btn btn-outline" href={FACEBOOK_PAGE_PRIMARY} target="_blank" rel="noreferrer">Facebook</a>
+              <a className="btn btn-outline" href={FACEBOOK_PAGE_SECONDARY} target="_blank" rel="noreferrer">Facebook (Alt)</a>
+              <a
+                className="btn btn-primary"
+                href={waLink(`Hi Tech Essentials! I’m browsing ${label}. Please help with options and pricing.`)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <MessageCircle size={18} />
+                WhatsApp Quote
+              </a>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <a
-              href={FACEBOOK_PAGE_PRIMARY}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
-            >
-              Facebook
-            </a>
-
-            <a
-              href={FACEBOOK_PAGE_SECONDARY}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
-            >
-              Facebook (Alt)
-            </a>
-
-            <a
-              href={waLink("Hi Tech Essentials! I want to ask about packages and pricing.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 rounded-lg bg-[--brand-primary] hover:opacity-90 transition text-sm font-semibold"
-            >
-              WhatsApp Tech Essentials
-            </a>
+          <div className="panel-soft p-5">
+            <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+              <div className="font-extrabold">How this works</div>
+              <div className="text-sm text-[--muted]">
+                Pick an item → tap WhatsApp → we confirm availability, delivery, and payment.
+              </div>
+              <div className="inline-flex items-center gap-2 text-sm font-extrabold text-[--brand-primary]">
+                <BadgeCheck size={16} /> Fast confirmation
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-7">
           {loading ? (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-              Loading…
-            </div>
+            <div className="panel p-8">Loading…</div>
           ) : items.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-              <p className="text-white/80">
-                No items listed here yet. Check back soon.
-              </p>
+            <div className="panel p-10 text-center">
+              <div className="text-xl font-extrabold">No items listed yet</div>
+              <p className="text-[--muted] mt-2">Message us and we’ll quote based on your needs.</p>
               <div className="mt-4 flex justify-center gap-2 flex-wrap">
-                <Link
-                  href="/deals"
-                  className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
-                >
-                  View Deals
-                </Link>
+                <Link href="/deals" className="btn btn-outline">View Deals</Link>
                 <a
-                  href={waLink(
-                    `Hi Tech Essentials! Do you have any ${label.toLowerCase()} available?`
-                  )}
+                  className="btn btn-primary"
+                  href={waLink(`Hi Tech Essentials! Do you have any ${label.toLowerCase()} available? Please share options and prices.`)}
                   target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg bg-[--brand-primary] hover:opacity-90 transition text-sm font-semibold"
+                  rel="noreferrer"
                 >
-                  Ask on WhatsApp
+                  WhatsApp
                 </a>
               </div>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {items.map((p) => {
                 const price = p.isDeal && p.dealPrice ? p.dealPrice : p.price;
                 const hasDeal = p.isDeal && p.dealPrice && p.dealPrice < p.price;
@@ -170,84 +151,42 @@ export default function CategoryPage() {
                   `Price: P${price}`,
                   hasDeal ? `(Deal: was P${p.price})` : "",
                   "Please confirm availability and how to proceed.",
-                ]
-                  .filter(Boolean)
-                  .join("\n");
+                ].filter(Boolean).join("\n");
 
                 return (
-                  <div
-                    key={p.id}
-                    className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden hover:bg-white/10 transition"
-                  >
-                    <div className="relative aspect-[4/3] bg-black/30">
-                      <Image
-                        src={p.imageUrl || "/placeholder.png"}
-                        alt={p.name}
-                        fill
-                        className="object-cover"
-                      />
-                      {!p.inStock && (
-                        <div className="absolute top-3 left-3 px-2 py-1 rounded-md text-xs font-semibold bg-black/60 border border-white/20">
-                          Out of stock
-                        </div>
-                      )}
-                      {hasDeal && (
-                        <div className="absolute top-3 right-3 px-2 py-1 rounded-md text-xs font-semibold bg-[--brand-primary]">
-                          Deal
-                        </div>
-                      )}
+                  <div key={p.id} className="panel overflow-hidden">
+                    <div className="relative aspect-[16/10] bg-[--surface-2]">
+                      <Image src={p.imageUrl || "/placeholder.png"} alt={p.name} fill className="object-cover" />
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        {!p.inStock && <span className="tag">Out of stock</span>}
+                        {hasDeal && <span className="tag" style={{ color: "var(--brand-primary)" }}>Deal</span>}
+                      </div>
                     </div>
 
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="font-semibold text-base">{p.name}</div>
-                          {p.brand && (
-                            <div className="text-xs text-white/60 mt-1">
-                              {p.brand}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="text-right">
-                          {hasDeal ? (
-                            <>
-                              <div className="text-sm line-through text-white/50">
-                                P{p.price}
-                              </div>
-                              <div className="text-lg font-bold">
-                                P{p.dealPrice}
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-lg font-bold">P{p.price}</div>
-                          )}
-                        </div>
-                      </div>
+                    <div className="p-5">
+                      <div className="font-extrabold text-lg leading-snug">{p.name}</div>
+                      <div className="text-sm text-[--muted] mt-1">{p.brand || label}</div>
 
                       {p.description && (
-                        <p className="text-sm text-white/70 mt-3 line-clamp-3">
-                          {p.description}
-                        </p>
+                        <p className="text-sm text-[--muted] mt-3 line-clamp-3">{p.description}</p>
                       )}
 
-                      <div className="mt-4 flex gap-2">
-                        <a
-                          href={waLink(msg)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 text-center px-4 py-2 rounded-lg bg-[--brand-primary] hover:opacity-90 transition text-sm font-semibold"
-                        >
-                          Order on WhatsApp
-                        </a>
+                      <div className="mt-4 flex items-end justify-between gap-3">
+                        <div>
+                          {hasDeal ? (
+                            <div className="flex items-baseline gap-2">
+                              <div className="text-sm line-through text-[--muted-2]">P{p.price}</div>
+                              <div className="text-xl font-extrabold">P{p.dealPrice}</div>
+                            </div>
+                          ) : (
+                            <div className="text-xl font-extrabold">P{p.price}</div>
+                          )}
+                          <div className="text-xs text-[--muted-2] mt-1">Prices may change based on supplier availability.</div>
+                        </div>
 
-                        <a
-                          href={FACEBOOK_PAGE_PRIMARY}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm font-semibold"
-                        >
-                          Facebook
+                        <a className="btn btn-primary" href={waLink(msg)} target="_blank" rel="noreferrer">
+                          <MessageCircle size={18} />
+                          WhatsApp
                         </a>
                       </div>
                     </div>

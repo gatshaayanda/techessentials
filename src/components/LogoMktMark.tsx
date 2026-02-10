@@ -6,11 +6,10 @@ import type React from "react";
 type Props = React.SVGProps<SVGSVGElement>;
 
 /**
- * Tech Essentials Mark — Secure Tech Core
- * - Clean corporate blue gradient
- * - Subtle shimmer sweep (trust, reliability)
- * - Gentle pulse (not flashy)
- * - Precision rim + signal nodes
+ * Tech Essentials Mark — Hex + "te" monogram
+ * - Flat + professional (no shimmer / glow / spin)
+ * - Matches the real Tech Essentials logo shape
+ * - Uses brand gradient tokens
  */
 export default function LogoMktMark(props: Props) {
   return (
@@ -20,129 +19,104 @@ export default function LogoMktMark(props: Props) {
       aria-label="Tech Essentials Mark"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
-      className={`te-pulse ${props.className || ""}`}
+      className={props.className || ""}
     >
       <defs>
-        {/* Brand gradient */}
         <linearGradient id="teGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="var(--brand-primary)" />
-          <stop offset="60%" stopColor="var(--brand-secondary)" />
-          <stop offset="100%" stopColor="var(--brand-primary)" />
+          <stop offset="100%" stopColor="var(--brand-secondary)" />
         </linearGradient>
 
-        {/* Inner glow */}
-        <radialGradient id="teGlow" cx="50%" cy="45%" r="65%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
-          <stop offset="30%" stopColor="rgba(14,165,233,0.45)" />
-          <stop offset="65%" stopColor="rgba(11,94,215,0.28)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
-        </radialGradient>
-
-        {/* Subtle shimmer sweep */}
-        <linearGradient id="sweep" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-          <stop offset="45%" stopColor="rgba(255,255,255,0.85)">
-            <animate
-              attributeName="offset"
-              values="-1; 2"
-              dur="9s"
-              repeatCount="indefinite"
-            />
-          </stop>
-          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+        {/* For light backgrounds: subtle inner stroke */}
+        <linearGradient id="teInner" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.65)" />
+          <stop offset="100%" stopColor="rgba(255,255,255,0.25)" />
         </linearGradient>
-
-        <mask id="sweepMask">
-          <rect width="64" height="64" fill="url(#sweep)" />
-        </mask>
       </defs>
 
-      {/* Depth shadow */}
-      <circle cx="32" cy="32" r="18" fill="#000" opacity="0.18" />
-
-      {/* Core */}
-      <g mask="url(#sweepMask)">
-        <circle cx="32" cy="32" r="18" fill="url(#teGrad)" />
-      </g>
-
-      {/* Glow */}
-      <circle cx="32" cy="32" r="26" fill="url(#teGlow)" opacity="0.65" />
-
-      {/* Precision rim */}
-      <circle
-        cx="32"
-        cy="32"
-        r="18"
+      {/* Hex outline (brand) */}
+      <path
+        d="M32 6.5
+           L52.2 18.2
+           V45.8
+           L32 57.5
+           L11.8 45.8
+           V18.2
+           Z"
         fill="none"
-        stroke="rgba(255,255,255,0.55)"
-        strokeWidth="0.9"
+        stroke="url(#teGrad)"
+        strokeWidth="4.2"
+        strokeLinejoin="round"
       />
 
-      {/* Signal ring */}
-      <circle
-        cx="32"
-        cy="32"
-        r="24"
+      {/* Inner subtle rim (adds polish, still flat) */}
+      <path
+        d="M32 10
+           L49.2 20
+           V44
+           L32 54
+           L14.8 44
+           V20
+           Z"
         fill="none"
-        stroke="var(--brand-secondary)"
-        strokeWidth="1.4"
-        strokeDasharray="6 7"
-        className="spin-slow"
-        opacity="0.85"
+        stroke="url(#teInner)"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+        opacity="0.6"
       />
 
-      {/* Signal nodes */}
-      <circle cx="14" cy="22" r="2" fill="var(--brand-primary)" />
-      <circle cx="50" cy="18" r="2" fill="var(--brand-secondary)" />
-      <circle cx="52" cy="46" r="2" fill="var(--brand-primary)" />
-      <circle cx="18" cy="50" r="2" fill="var(--brand-secondary)" />
+      {/* "te" monogram (flat, rounded) */}
+      {/* t */}
+      <path
+        d="M24.5 22.5
+           h5.5
+           v3.2
+           h-1.6
+           v15.1
+           c0 2.8 1.6 4.3 4.4 4.3
+           h0.8
+           v3.3
+           h-1.6
+           c-5 0-7.8-2.7-7.8-7.6
+           v-15.1
+           h-1.7
+           v-3.2
+           z"
+        fill="url(#teGrad)"
+      />
 
-      <style jsx>{`
-        @keyframes pulseSoft {
-          0%,
-          100% {
-            transform: scale(1);
-            filter: drop-shadow(0 0 8px rgba(11, 94, 215, 0.22))
-              drop-shadow(0 0 14px rgba(14, 165, 233, 0.16));
-          }
-          50% {
-            transform: scale(1.04);
-            filter: drop-shadow(0 0 12px rgba(11, 94, 215, 0.32))
-              drop-shadow(0 0 20px rgba(14, 165, 233, 0.24));
-          }
-        }
+      {/* e (rounded open "e") */}
+      <path
+        d="M38.3 27.2
+           c5.8 0 9.4 3.6 9.4 9.1
+           c0 0.7-0.1 1.6-0.2 2.3
+           H36.2
+           c0.5 2.6 2.4 4.1 5.2 4.1
+           c1.8 0 3.4-0.5 4.8-1.5
+           l1.6 2.7
+           c-1.9 1.5-4.3 2.3-6.9 2.3
+           c-6 0-9.9-3.8-9.9-9.6
+           c0-5.7 3.9-9.4 9.3-9.4
+           z
+           M36.1 35.2
+           H44
+           c-0.2-2.5-2.1-4.1-4.6-4.1
+           c-2.4 0-4.1 1.6-4.4 4.1
+           z"
+        fill="url(#teGrad)"
+      />
 
-        .te-pulse {
-          animation: pulseSoft 6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
-          transform-origin: center;
-        }
-
-        .te-pulse:hover {
-          filter: drop-shadow(0 0 14px rgba(11, 94, 215, 0.4))
-            drop-shadow(0 0 22px rgba(14, 165, 233, 0.3));
-        }
-
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        .spin-slow {
-          transform-origin: 32px 32px;
-          animation: spin 10s linear infinite;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation: none !important;
-            transition: none !important;
-          }
-        }
-      `}</style>
+      {/* Little square node (like the logo) */}
+      <rect
+        x="48.2"
+        y="28.2"
+        width="6.2"
+        height="6.2"
+        rx="1.4"
+        fill="none"
+        stroke="url(#teGrad)"
+        strokeWidth="2.1"
+      />
     </svg>
   );
 }

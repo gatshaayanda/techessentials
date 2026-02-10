@@ -3,16 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  MessageCircle,
-  Sparkles,
-  ShieldCheck,
-  Truck,
-} from "lucide-react";
+import { Sparkles, ShieldCheck, Truck, MessageCircle, Wrench, Camera, Printer, Cpu } from "lucide-react";
 import { firestore } from "@/utils/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
-
-/* ───────────────── TYPES ───────────────── */
 
 type Highlight = {
   id: string;
@@ -37,10 +30,7 @@ type Product = {
   description?: string | null;
 };
 
-/* ───────────────── CONSTANTS ───────────────── */
-
 const WHATSAPP_NUMBER = "+26772545765";
-
 const FACEBOOK_PAGE_PRIMARY = "https://www.facebook.com/techessentialz/";
 const FACEBOOK_PAGE_SECONDARY = "https://www.facebook.com/techessentialsbw/";
 
@@ -49,7 +39,12 @@ function waLink(message: string) {
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
 
-/* ───────────────── PAGE ───────────────── */
+const CATS = [
+  { href: "/c/pos", title: "POS Systems", desc: "Complete POS bundles for retail & restaurants.", icon: <Cpu size={18} /> },
+  { href: "/c/scales", title: "Scales", desc: "Reliable weighing solutions for shops & warehouses.", icon: <Wrench size={18} /> },
+  { href: "/c/cctv", title: "CCTV", desc: "Security camera packages + setup options.", icon: <Camera size={18} /> },
+  { href: "/c/printers", title: "Printers", desc: "Receipt printers & printing accessories.", icon: <Printer size={18} /> },
+];
 
 export default function HomePage() {
   const [hero, setHero] = useState<Highlight | null>(null);
@@ -60,22 +55,14 @@ export default function HomePage() {
   useEffect(() => {
     (async () => {
       try {
-        /* HIGHLIGHTS */
         const hsnap = await getDocs(collection(firestore, "highlights"));
-        const hdata = hsnap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as any),
-        })) as Highlight[];
+        const hdata = hsnap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Highlight[];
 
         setHero(hdata.find((h) => h.isHero) || null);
-        setGallery(hdata.filter((h) => h.showOnHome && !h.isHero).slice(0, 4));
+        setGallery(hdata.filter((h) => h.showOnHome && !h.isHero).slice(0, 6));
 
-        /* PRODUCTS */
         const psnap = await getDocs(collection(firestore, "products"));
-        const pdata = psnap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as any),
-        })) as Product[];
+        const pdata = psnap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Product[];
 
         setProducts(pdata.slice(0, 8));
       } catch (e) {
@@ -87,129 +74,179 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="bg-[--background] text-[--foreground] overflow-hidden">
-      {/* ───────── HERO ───────── */}
-      <section className="relative min-h-[90vh] flex items-center justify-center px-6">
-        {hero?.imageUrl && (
-          <Image
-            src={hero.imageUrl}
-            alt="Hero"
-            fill
-            priority
-            className="object-cover opacity-35"
-          />
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/95" />
-
-        <div className="relative z-10 text-center max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/15 bg-white/10 text-xs">
-            <Sparkles size={14} />
-            POS • Scales • CCTV • Printers • Accessories
+    <main className="bg-[--background] text-[--foreground]">
+      {/* TOP STRIP */}
+      <div className="border-b border-[--border]">
+        <div className="container py-3 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between text-sm">
+          <div className="flex items-center gap-2 text-[--muted]">
+            <Sparkles size={16} />
+            Commercial POS • Scales • CCTV • Printers • Accessories
           </div>
 
-          <h1 className="mt-6 text-5xl md:text-6xl font-extrabold">
-            Tech Essentials
-            <span className="block text-xl md:text-2xl text-white/70 mt-3">
-              Quotes + Fast WhatsApp Ordering
-            </span>
-          </h1>
-
-          <p className="mt-5 text-white/70 max-w-2xl mx-auto">
-            Browse packages, request a quote, and order instantly on WhatsApp.
-          </p>
-
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href={waLink("Hi Tech Essentials! I want to request a quote / place an order.")}
-              className="px-7 py-3 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 transition"
-            >
-              Order on WhatsApp
-            </a>
-
-            <Link
-              href="/c/pos"
-              className="px-7 py-3 rounded-full bg-blue-700 hover:brightness-110 transition"
-            >
-              Browse Packages
-            </Link>
-
-            <a
-              href={FACEBOOK_PAGE_PRIMARY}
-              target="_blank"
-              rel="noreferrer"
-              className="px-7 py-3 rounded-full border border-white/15 hover:bg-white/10 transition"
-            >
+          <div className="flex flex-wrap gap-2">
+            <a className="btn btn-ghost" href={FACEBOOK_PAGE_PRIMARY} target="_blank" rel="noreferrer">
               Facebook
             </a>
-
-            <a
-              href={FACEBOOK_PAGE_SECONDARY}
-              target="_blank"
-              rel="noreferrer"
-              className="px-7 py-3 rounded-full border border-white/15 hover:bg-white/10 transition"
-            >
+            <a className="btn btn-ghost" href={FACEBOOK_PAGE_SECONDARY} target="_blank" rel="noreferrer">
               Facebook (Alt)
             </a>
+            <a className="btn btn-primary" href={waLink("Hi Tech Essentials! I want to request a quote / place an order.")}>
+              <MessageCircle size={18} />
+              WhatsApp: +267 72 545 765
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* HERO (two-column, B2B) */}
+      <section className="container py-10 md:py-14">
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-stretch">
+          <div className="panel p-6 md:p-8">
+            <div className="kicker">Business-ready equipment • Clear pricing • Fast support</div>
+
+            <h1 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+              Tech Essentials
+              <span className="block text-[--muted] text-base sm:text-lg md:text-xl font-bold mt-3">
+                POS systems, scales, CCTV packages and accessories — order or request a quote on WhatsApp.
+              </span>
+            </h1>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <a className="btn btn-primary w-full" href={waLink("Hi Tech Essentials! Please send me POS / CCTV / Scales package options and prices.")}>
+                <MessageCircle size={18} />
+                Request a Quote
+              </a>
+
+              <Link className="btn btn-outline w-full" href="/c/pos">
+                Browse Packages
+              </Link>
+            </div>
+
+            <div className="divider my-6" />
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="panel-soft p-4">
+                <div className="font-extrabold">POS Bundles</div>
+                <div className="text-sm text-[--muted] mt-1">Starter → pro setups.</div>
+              </div>
+              <div className="panel-soft p-4">
+                <div className="font-extrabold">CCTV</div>
+                <div className="text-sm text-[--muted] mt-1">Secure your business.</div>
+              </div>
+              <div className="panel-soft p-4">
+                <div className="font-extrabold">Scales</div>
+                <div className="text-sm text-[--muted] mt-1">Accurate + durable.</div>
+              </div>
+            </div>
+          </div>
+
+          {/* HERO VISUAL */}
+          <div className="panel overflow-hidden">
+            <div className="relative h-full min-h-[320px]">
+              <Image
+                src={hero?.imageUrl || "/placeholder.png"}
+                alt={hero?.title || "Tech Essentials"}
+                fill
+                priority
+                className="object-cover"
+              />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(11,94,215,0.12), rgba(14,165,233,0.10), rgba(255,255,255,0.0))" }} />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <div className="panel p-4">
+                  <div className="font-extrabold">{hero?.title || "Packages & Equipment"}</div>
+                  <div className="text-sm text-[--muted] mt-1">
+                    {hero?.desc || "Ask for availability and installation options on WhatsApp."}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ───────── FEATURED PRODUCTS ───────── */}
-      <section className="py-20 px-6">
-        <div className="container">
-          <h2 className="text-3xl font-extrabold mb-3">Featured Packages</h2>
-          <p className="text-white/60 mb-10">Latest items added by admin.</p>
+      {/* CATEGORY GRID */}
+      <section className="container pb-10">
+        <h2 className="text-2xl font-extrabold">Browse by Category</h2>
+        <p className="text-[--muted] mt-1">Choose a category to view packages and pricing.</p>
 
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {CATS.map((c) => (
+            <Link key={c.href} href={c.href} className="panel p-5 hover:translate-y-[-1px] transition">
+              <div className="flex items-center gap-2 text-[--brand-primary] font-extrabold">
+                <span className="grid place-items-center h-9 w-9 rounded-xl bg-[--surface-2] border border-[--border]">
+                  {c.icon}
+                </span>
+                {c.title}
+              </div>
+              <p className="mt-2 text-sm text-[--muted]">{c.desc}</p>
+              <div className="mt-4 inline-flex items-center gap-2 text-sm font-extrabold text-[--brand-primary]">
+                View packages <span>→</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* FEATURED PRODUCTS */}
+      <section className="container pb-12">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-extrabold">Featured Packages</h2>
+            <p className="text-[--muted] mt-1">Latest items added by admin.</p>
+          </div>
+          <Link href="/c/pos" className="btn btn-outline">View all</Link>
+        </div>
+
+        <div className="mt-5">
           {loading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-[4/3] bg-white/10 rounded-xl animate-pulse"
-                />
+                <div key={i} className="panel h-[220px] animate-pulse" />
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-white/70">
-              No products yet.
+            <div className="panel p-8 text-center">
+              <div className="font-extrabold">No items yet</div>
+              <p className="text-[--muted] mt-2">Add products in admin to show them here.</p>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {products.map((p) => {
                 const price = p.isDeal && p.dealPrice ? p.dealPrice : p.price;
+                const hasDeal = p.isDeal && p.dealPrice && p.dealPrice < p.price;
 
                 return (
-                  <Link
-                    key={p.id}
-                    href={`/c/${p.category}`}
-                    className="rounded-xl border border-white/10 bg-white/5 overflow-hidden hover:bg-white/10 transition"
-                  >
-                    <div className="relative aspect-[4/3] bg-black/30">
-                      <Image
-                        src={p.imageUrl || "/placeholder.png"}
-                        alt={p.name}
-                        fill
-                        className="object-cover"
-                      />
-                      {!p.inStock && (
-                        <div className="absolute top-3 left-3 text-xs px-2 py-1 bg-black/70 rounded">
-                          Out of stock
-                        </div>
-                      )}
-                      {p.isDeal && (
-                        <div className="absolute top-3 right-3 text-xs px-2 py-1 bg-blue-700 rounded">
-                          Deal
-                        </div>
-                      )}
+                  <Link key={p.id} href={`/c/${p.category}`} className="panel overflow-hidden hover:translate-y-[-1px] transition">
+                    <div className="relative aspect-[4/3] bg-[--surface-2]">
+                      <Image src={p.imageUrl || "/placeholder.png"} alt={p.name} fill className="object-cover" />
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        {!p.inStock && <span className="tag">Out of stock</span>}
+                        {hasDeal && <span className="tag" style={{ color: "var(--brand-primary)" }}>Deal</span>}
+                      </div>
                     </div>
 
                     <div className="p-4">
-                      <div className="font-semibold line-clamp-1">{p.name}</div>
-                      <div className="text-sm text-white/60 mt-1">
-                        {p.brand || p.category}
+                      <div className="font-extrabold line-clamp-2">{p.name}</div>
+                      <div className="text-sm text-[--muted] mt-1">{p.brand || p.category}</div>
+
+                      <div className="mt-3 flex items-baseline justify-between gap-3">
+                        {hasDeal ? (
+                          <div className="flex items-baseline gap-2">
+                            <div className="text-sm line-through text-[--muted-2]">P{p.price}</div>
+                            <div className="text-lg font-extrabold">P{p.dealPrice}</div>
+                          </div>
+                        ) : (
+                          <div className="text-lg font-extrabold">P{p.price}</div>
+                        )}
+
+                        <a
+                          className="btn btn-primary"
+                          href={waLink(`Hi Tech Essentials! I want to order / request a quote:\n\nItem: ${p.name}\nCategory: ${p.category}\nPrice: P${price}\n\nPlease confirm availability and how to proceed.`)}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          WhatsApp
+                        </a>
                       </div>
-                      <div className="mt-3 text-lg font-bold">P{price}</div>
                     </div>
                   </Link>
                 );
@@ -219,34 +256,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ───────── TRUST STRIP ───────── */}
-      <section className="py-16 px-6 bg-white/5">
-        <div className="container grid sm:grid-cols-3 gap-4">
+      {/* TRUST STRIP */}
+      <section className="border-t border-[--border]">
+        <div className="container py-10 grid gap-4 md:grid-cols-3">
           {[
-            {
-              icon: <ShieldCheck size={18} />,
-              title: "Trusted supply",
-              desc: "Availability confirmed before payment.",
-            },
-            {
-              icon: <Truck size={18} />,
-              title: "Delivery / installation",
-              desc: "Collection, delivery, or installation arranged.",
-            },
-            {
-              icon: <MessageCircle size={18} />,
-              title: "Fast WhatsApp support",
-              desc: "Quotes, recommendations, and setup guidance.",
-            },
+            { icon: <ShieldCheck size={18} />, title: "Verified availability", desc: "We confirm stock before payment." },
+            { icon: <Truck size={18} />, title: "Delivery options", desc: "Collection or delivery arranged." },
+            { icon: <Wrench size={18} />, title: "Support & guidance", desc: "We help you choose the right setup." },
           ].map((i) => (
-            <div
-              key={i.title}
-              className="rounded-xl border border-white/10 bg-white/5 p-5"
-            >
-              <div className="flex items-center gap-2 font-semibold">
-                {i.icon} {i.title}
+            <div key={i.title} className="panel p-5">
+              <div className="flex items-center gap-2 font-extrabold">
+                <span className="grid place-items-center h-9 w-9 rounded-xl bg-[--surface-2] border border-[--border] text-[--brand-primary]">
+                  {i.icon}
+                </span>
+                {i.title}
               </div>
-              <p className="text-sm text-white/65 mt-2">{i.desc}</p>
+              <p className="text-sm text-[--muted] mt-2">{i.desc}</p>
             </div>
           ))}
         </div>

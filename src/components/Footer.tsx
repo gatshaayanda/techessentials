@@ -2,7 +2,14 @@
 "use client";
 
 import Link from "next/link";
-import { MessageCircle, Radio } from "lucide-react";
+import {
+  MessageCircle,
+  Facebook,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  Wrench,
+} from "lucide-react";
 
 const WHATSAPP_NUMBER = "+26772545765";
 
@@ -18,11 +25,33 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 text-[--foreground] bg-[--background] relative overflow-hidden">
-      {/* Subtle brand shimmer line */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[--brand-primary]/35 via-[--brand-secondary]/55 to-[--brand-primary]/35 animate-neonflow" />
+    <footer className="mt-16 bg-[--surface] text-[--foreground] border-t border-[--border]">
+      {/* Top CTA strip (clean, not shiny) */}
+      <div className="bg-[--surface-2] border-b border-[--border]">
+        <div className="container py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold">
+              Need a quote for POS, Scales, or CCTV?
+            </p>
+            <p className="text-xs text-[--muted] mt-1">
+              Message us what you need and we’ll confirm package, installation,
+              and delivery options.
+            </p>
+          </div>
 
-      <div className="container grid gap-10 sm:grid-cols-2 lg:grid-cols-4 py-12 text-sm relative z-10">
+          <a
+            href={waLink(
+              "Hi Tech Essentials 👋 Please quote me for:\n\n1) \n\nLocation: \nInstall needed? (Yes/No): "
+            )}
+            className="btn btn-primary"
+          >
+            <MessageCircle size={18} />
+            Get a Quote on WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <div className="container grid gap-10 sm:grid-cols-2 lg:grid-cols-4 py-12 text-sm">
         {/* Brand */}
         <section aria-labelledby="footer-brand">
           <h4
@@ -33,19 +62,22 @@ export default function Footer() {
           </h4>
           <p className="text-[--muted] leading-relaxed">
             POS systems, price computing scales, CCTV packages, and business
-            accessories. Browse deals and order directly on WhatsApp.
+            accessories. Practical gear for shops and small businesses.
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="badge">POS</span>
-            <span className="badge">Scales</span>
-            <span className="badge">CCTV</span>
-            <span className="badge">Printers</span>
-            <span className="badge">Accessories</span>
+          <div className="mt-4 grid gap-2 text-xs text-[--muted]">
+            <div className="inline-flex items-center gap-2">
+              <ShieldCheck size={16} className="text-[--brand-primary]" />
+              Tested packages, clear pricing
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <Wrench size={16} className="text-[--brand-primary]" />
+              Installation support (where applicable)
+            </div>
           </div>
         </section>
 
-        {/* WhatsApp + Facebook */}
+        {/* Contact */}
         <section aria-labelledby="footer-contact">
           <h4
             id="footer-contact"
@@ -54,7 +86,7 @@ export default function Footer() {
             Contact
           </h4>
 
-          <ul className="space-y-2 text-[--muted]">
+          <ul className="space-y-3 text-[--muted]">
             <li>
               <a
                 href={waLink(
@@ -67,42 +99,40 @@ export default function Footer() {
               </a>
             </li>
 
-            <li>
+            <li className="inline-flex items-center gap-2">
+              <Phone size={18} />
+              <span>Calls: +267 72 545 765</span>
+            </li>
+
+            <li className="inline-flex items-center gap-2">
+              <MapPin size={18} />
+              <span>Botswana (Delivery / Install by arrangement)</span>
+            </li>
+
+            <li className="pt-1">
               <a
                 href={FACEBOOK_PAGE_PRIMARY}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 hover:underline"
               >
-                <Radio size={18} />
+                <Facebook size={18} />
                 Facebook: techessentialz
               </a>
-            </li>
-
-            <li>
+              <span className="block text-xs text-[--muted-2] mt-1">
+                or
+              </span>
               <a
                 href={FACEBOOK_PAGE_SECONDARY}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 hover:underline"
+                className="inline-flex items-center gap-2 hover:underline mt-1"
               >
-                <Radio size={18} />
+                <Facebook size={18} />
                 Facebook: techessentialsbw
               </a>
             </li>
           </ul>
-
-          <div className="mt-4">
-            <a
-              href={waLink(
-                "Hi Tech Essentials 👋 I want to order:\n\n1) \n2) \n\nDelivery location: \nName: "
-              )}
-              className="btn btn-primary w-full"
-            >
-              <MessageCircle size={18} />
-              Order on WhatsApp
-            </a>
-          </div>
         </section>
 
         {/* Quick Links */}
@@ -111,13 +141,13 @@ export default function Footer() {
             id="footer-links"
             className="text-lg font-bold text-[--foreground] mb-2"
           >
-            Quick Links
+            Browse
           </h4>
 
           <ul className="space-y-2 text-[--muted]">
             <li>
               <Link href="/" className="hover:underline">
-                Shop
+                Home / Shop
               </Link>
             </li>
             <li>
@@ -153,57 +183,39 @@ export default function Footer() {
           </ul>
         </nav>
 
-        {/* Info */}
+        {/* How it works */}
         <section aria-labelledby="footer-info">
           <h4
             id="footer-info"
             className="text-lg font-bold text-[--foreground] mb-2"
           >
-            How Orders Work
+            How orders work
           </h4>
 
-          <p className="text-[--muted] leading-relaxed">
-            Browse packages and prices on the website, then tap “Order on
-            WhatsApp” to send your list. We’ll confirm availability, delivery or
-            installation options, and payment details on WhatsApp.
-          </p>
+          <ol className="space-y-2 text-[--muted] list-decimal list-inside">
+            <li>Browse packages & pricing.</li>
+            <li>Tap WhatsApp to request a quote or order.</li>
+            <li>We confirm stock, delivery/installation, and payment.</li>
+          </ol>
 
-          <div className="mt-4 card">
-            <div className="card-inner">
-              <p className="text-[--foreground] font-semibold">Tip</p>
-              <p className="text-[--muted] mt-1">
-                For installations (CCTV / POS setup), send your location and a
-                photo of the shop layout if possible.
-              </p>
-            </div>
+          <div className="mt-4 rounded-2xl border border-[--border] bg-[--surface-2] p-4">
+            <p className="text-[--foreground] font-semibold">For installs</p>
+            <p className="text-[--muted] mt-1 text-sm">
+              Send your location + what you want installed (CCTV points / POS
+              terminals / scale type). If you can, include a photo of the shop
+              counter/area.
+            </p>
           </div>
         </section>
       </div>
 
       {/* Bottom strip */}
-      <div className="border-t border-[--border] relative z-10">
+      <div className="border-t border-[--border]">
         <div className="container py-4 flex flex-col md:flex-row justify-between text-xs text-[--muted] gap-2">
           <div>&copy; {year} Tech Essentials. All rights reserved.</div>
           <div>Prices may change based on stock and supplier availability.</div>
         </div>
       </div>
-
-      {/* Footer animation */}
-      <style jsx global>{`
-        @keyframes neonflow {
-          0%,
-          100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-        .animate-neonflow {
-          background-size: 200% 200%;
-          animation: neonflow 7s ease-in-out infinite;
-        }
-      `}</style>
     </footer>
   );
 }

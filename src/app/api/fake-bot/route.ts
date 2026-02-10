@@ -15,7 +15,6 @@ const PATHS = {
   cctv: "/c/cctv",
   printers: "/c/printers",
   accessories: "/c/accessories",
-  deals: "/deals",
 };
 
 const SUGG = {
@@ -24,11 +23,9 @@ const SUGG = {
   CCTV: "CCTV Packages",
   PRINTERS: "Receipt Printers",
   ACCESSORIES: "Accessories",
-  HOW: "How to order",
-  ORDER: "Order on WhatsApp",
-  FB: "Facebook Page",
-  FB_ALT: "Facebook (Alt)",
-  DEALS: "Deals",
+  QUOTE: "Request a Quote",
+  FB: "Facebook (techessentialz)",
+  FB_ALT: "Facebook (techessentialsbw)",
 } as const;
 
 const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -48,30 +45,37 @@ const normalize = (s: unknown): string =>
 const includesAny = (s: string, pats: (string | RegExp)[]) =>
   pats.some((p) => (p instanceof RegExp ? p.test(s) : s.includes(p)));
 
-let memory: { greeted?: boolean; lastIntent?: string } = {};
+const DEFAULT_SUGG = [
+  SUGG.POS,
+  SUGG.SCALES,
+  SUGG.CCTV,
+  SUGG.PRINTERS,
+  SUGG.ACCESSORIES,
+  SUGG.QUOTE,
+] as const;
 
 // Phrase pools
 const tone = {
   greet: [
-    "Hey 👋 Welcome to Tech Essentials.",
-    "Hi there 👋 You’re chatting with Tech Essentials.",
-    "Welcome! I can help you with POS, scales, CCTV packages, and how to order on WhatsApp.",
+    "Hi 👋 Welcome to Tech Essentials.",
+    "Hello 👋 Tech Essentials here.",
+    "Welcome! I can help with POS, scales, CCTV packages, and accessories.",
   ],
   order: [
-    "To order: browse packages/prices, then tap “Order on WhatsApp” and send your list. We’ll confirm availability, delivery/installation, and payment.",
-    "Ordering is simple: tell us the package/item you want, quantity, and your location. If it’s CCTV, mention number of cameras + installation required.",
+    "To request a quote: tell us what you need, quantity, and your location. We’ll confirm availability, delivery/installation, and payment on WhatsApp.",
+    "Ordering is simple: pick your package/item, share quantity + location, and we’ll confirm delivery/installation and price on WhatsApp.",
   ],
   categories: [
-    "We supply POS systems, price computing scales, CCTV packages, and business accessories (printers, scanners, cables, etc.).",
-    "POS • Scales • CCTV • Printers • Accessories — tell me what you need and I’ll guide you to the right section.",
+    "We supply POS systems, price computing scales, CCTV packages, receipt printers, and accessories.",
+    "POS • Scales • CCTV • Printers • Accessories — tell me what you need and I’ll guide you.",
   ],
   pricing: [
-    "Tell me what you need (e.g. POS + printer, scale with pole display, 4-camera CCTV) and I’ll guide you to the right section and ordering steps.",
-    "Which package are you looking for — POS, scale, CCTV, or printer? I’ll help you place the order.",
+    "Tell me what you need (e.g. POS + printer, scale with pole display, 4-camera CCTV) and I’ll guide you to the right section.",
+    "Which package are you looking for — POS, scale, CCTV, or printer? I’ll guide you to the right option.",
   ],
   install: [
-    "For installation, share your location and a quick note about the shop/home setup (indoor/outdoor cameras, number of rooms, etc.).",
-    "If you want CCTV installed, tell me: number of cameras, indoor/outdoor, and your location — we’ll advise the best package.",
+    "For CCTV installation, tell me: number of cameras, indoor/outdoor, and your location.",
+    "If you want installation, share your location and the setup (home/shop, rooms/areas, indoor/outdoor).",
   ],
 };
 
@@ -91,30 +95,24 @@ const INTENTS: Intent[] = [
       /\b(hello|hi|hey|sup|morning|afternoon|evening)\b/,
       /\b(start|help|menu)\b/,
     ],
-    respond: () => {
-      memory.greeted = true;
-      return reply(`${pick(tone.greet)}\nWhat do you need today?`, [
-        SUGG.POS,
-        SUGG.SCALES,
-        SUGG.CCTV,
-        SUGG.PRINTERS,
-        SUGG.ORDER,
-      ]);
-    },
+    respond: () =>
+      reply(`${pick(tone.greet)}\nWhat do you need today?`, [...DEFAULT_SUGG]),
   },
+
   {
     name: "pos",
     weight: 3,
     matchers: [
       /\b(pos|point of sale|till|cashier|cash register|billing|shop system)\b/,
-      /\b(supermarket|tuckshop|general dealer|butchery|restaurant|bar|liquor)\b/,
+      /\b(supermarket|tuckshop|general dealer|butchery|restaurant|bar)\b/,
     ],
     respond: () =>
       reply(
         `${pick(tone.pricing)}\nBrowse POS options here: ${PATHS.pos}`,
-        [SUGG.POS, SUGG.ORDER, SUGG.DEALS, SUGG.FB]
+        [SUGG.POS, SUGG.QUOTE, SUGG.FB, SUGG.FB_ALT]
       ),
   },
+
   {
     name: "scales",
     weight: 3,
@@ -124,10 +122,11 @@ const INTENTS: Intent[] = [
     ],
     respond: () =>
       reply(
-        `Scales are here: ${PATHS.scales}\nTell me if you need a pole display and your budget.`,
-        [SUGG.SCALES, SUGG.ORDER, SUGG.DEALS, SUGG.FB]
+        `Scales are here: ${PATHS.scales}\nTell me if you need a pole display + your budget.`,
+        [SUGG.SCALES, SUGG.QUOTE, SUGG.FB, SUGG.FB_ALT]
       ),
   },
+
   {
     name: "cctv",
     weight: 3,
@@ -138,9 +137,10 @@ const INTENTS: Intent[] = [
     respond: () =>
       reply(
         `CCTV packages are here: ${PATHS.cctv}\n${pick(tone.install)}`,
-        [SUGG.CCTV, SUGG.ORDER, SUGG.HOW, SUGG.FB]
+        [SUGG.CCTV, SUGG.QUOTE, SUGG.FB, SUGG.FB_ALT]
       ),
   },
+
   {
     name: "printers",
     weight: 2,
@@ -150,10 +150,11 @@ const INTENTS: Intent[] = [
     ],
     respond: () =>
       reply(
-        `Printers & accessories are here: ${PATHS.printers}\nTell me what POS you’re using and I’ll guide compatibility.`,
-        [SUGG.PRINTERS, SUGG.ACCESSORIES, SUGG.ORDER, SUGG.FB]
+        `Printers are here: ${PATHS.printers}\nTell me what POS you’re using and I’ll guide compatibility.`,
+        [SUGG.PRINTERS, SUGG.ACCESSORIES, SUGG.QUOTE, SUGG.FB]
       ),
   },
+
   {
     name: "accessories",
     weight: 2,
@@ -163,54 +164,38 @@ const INTENTS: Intent[] = [
     ],
     respond: () =>
       reply(
-        `Accessories are here: ${PATHS.accessories}\nTell me what you need and quantity.`,
-        [SUGG.ACCESSORIES, SUGG.ORDER, SUGG.DEALS, SUGG.FB]
+        `Accessories are here: ${PATHS.accessories}\nTell me what you need + quantity.`,
+        [SUGG.ACCESSORIES, SUGG.QUOTE, SUGG.FB, SUGG.FB_ALT]
       ),
   },
+
   {
-    name: "order",
+    name: "quote_order",
     weight: 3,
     matchers: [/\b(order|buy|purchase|deliver|delivery|whatsapp|payment|pay|quote|price)\b/],
     respond: () =>
       reply(
         `${pick(tone.order)}\nWhatsApp: ${CONTACT.whatsappNumber}\nFacebook: ${CONTACT.facebookPrimary}`,
-        [SUGG.ORDER, SUGG.HOW, SUGG.FB, SUGG.FB_ALT]
+        [SUGG.QUOTE, ...DEFAULT_SUGG.slice(0, 3), SUGG.FB, SUGG.FB_ALT]
       ),
   },
-  {
-    name: "deals",
-    weight: 2,
-    matchers: [/\b(deal|deals|discount|sale|promo|special)\b/],
-    respond: () =>
-      reply(`Check deals here: ${PATHS.deals}`, [
-        SUGG.DEALS,
-        SUGG.ORDER,
-        SUGG.FB,
-      ]),
-  },
+
   {
     name: "browse",
     weight: 2,
     matchers: [/\b(browse|categories|what do you sell|what do you have|stock)\b/],
-    respond: () =>
-      reply(`${pick(tone.categories)}`, [
-        SUGG.POS,
-        SUGG.SCALES,
-        SUGG.CCTV,
-        SUGG.PRINTERS,
-        SUGG.ACCESSORIES,
-      ]),
+    respond: () => reply(pick(tone.categories), [...DEFAULT_SUGG, SUGG.FB]),
   },
 ];
 
 const FALLBACK = () =>
   reply(
     pick([
-      "Tell me what you need (POS / scale / CCTV) and any details (qty, budget, location) — I’ll guide you to the right package.",
-      "If you’re not sure which package fits, tell me your business type (tuckshop, butchery, restaurant) and I’ll recommend what to ask for on WhatsApp.",
-      `You can also order directly on WhatsApp: ${CONTACT.whatsappNumber}`,
+      "Tell me what you need (POS / scale / CCTV) plus quantity, budget, and location — I’ll guide you.",
+      "If you’re not sure which package fits, tell me your business type (tuckshop, butchery, restaurant) and I’ll advise what to request.",
+      `You can request a quote directly on WhatsApp: ${CONTACT.whatsappNumber}`,
     ]),
-    [SUGG.POS, SUGG.SCALES, SUGG.CCTV, SUGG.ORDER, SUGG.FB]
+    [...DEFAULT_SUGG, SUGG.FB, SUGG.FB_ALT]
   );
 
 function detectIntent(text: string): Intent | null {
@@ -235,21 +220,12 @@ export async function POST(req: Request) {
 
   if (!text) {
     return NextResponse.json(
-      reply(`${pick(tone.greet)}\nWhat are you looking for?`, [
-        SUGG.POS,
-        SUGG.SCALES,
-        SUGG.CCTV,
-        SUGG.PRINTERS,
-        SUGG.ORDER,
-      ])
+      reply(`${pick(tone.greet)}\nWhat are you looking for?`, [...DEFAULT_SUGG, SUGG.FB])
     );
   }
 
   const intent = detectIntent(text);
-  if (intent) {
-    memory.lastIntent = intent.name;
-    return NextResponse.json(intent.respond(text));
-  }
+  if (intent) return NextResponse.json(intent.respond(text));
 
   return NextResponse.json(FALLBACK());
 }

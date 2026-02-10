@@ -8,8 +8,8 @@ export default function AdminHubLoader() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const fade = setTimeout(() => setFading(true), 2300);
-    const hide = setTimeout(() => setVisible(false), 3100);
+    const fade = setTimeout(() => setFading(true), 1600);
+    const hide = setTimeout(() => setVisible(false), 2300);
     return () => {
       clearTimeout(fade);
       clearTimeout(hide);
@@ -22,161 +22,119 @@ export default function AdminHubLoader() {
     <div
       role="status"
       aria-label="Loading Tech Essentials"
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-opacity duration-[1200ms] ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center transition-opacity duration-[700ms] ${
         fading ? "opacity-0" : "opacity-100"
       }`}
       style={{
-        background: "#020617", // solid, fully opaque
-        isolation: "isolate", // 🔥 critical fix
+        background:
+          "radial-gradient(900px 600px at 25% 15%, rgba(25,211,197,0.18), transparent 55%), radial-gradient(900px 600px at 80% 35%, rgba(26,108,255,0.18), transparent 60%), #070b12",
+        isolation: "isolate",
         color: "var(--foreground)",
         fontFamily: "var(--font-sans)",
       }}
     >
-      {/* Icon */}
-      <div className="relative h-28 w-28 mb-6">
-        {/* Reflection */}
-        <svg
-          viewBox="0 0 64 64"
-          className="absolute inset-0 opacity-20 blur-sm scale-y-[-1] translate-y-8"
-        >
-          <rect
-            x="10"
-            y="10"
-            width="44"
-            height="44"
-            rx="8"
-            fill="rgba(96,165,250,0.6)"
-          />
-        </svg>
+      <div className="w-full max-w-md px-6">
+        <div className="rounded-2xl border border-[--border] bg-[--surface] shadow-[0_22px_70px_rgba(0,0,0,0.65)] overflow-hidden">
+          <div className="px-6 pt-6 pb-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="h-11 w-11 rounded-xl border border-[--border] bg-[--surface-2] grid place-items-center"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 64 64" width="26" height="26">
+                    <defs>
+                      <linearGradient id="teBlue" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="var(--brand-primary)" />
+                        <stop offset="100%" stopColor="var(--brand-secondary)" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M32 10 52 22v20L32 54 12 42V22z"
+                      fill="none"
+                      stroke="url(#teBlue)"
+                      strokeWidth="4"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M24 33h16"
+                      stroke="rgba(232,238,249,0.95)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M32 25v16"
+                      stroke="rgba(232,238,249,0.95)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
 
-        {/* Main icon */}
-        <svg
-          viewBox="0 0 64 64"
-          width="112"
-          height="112"
-          className="animate-float drop-glow"
-        >
-          <defs>
-            <radialGradient id="hubGlow" cx="50%" cy="35%" r="55%">
-              <stop offset="0%" stopColor="#93c5fd">
-                <animate
-                  attributeName="offset"
-                  values="0;0.4;0"
-                  dur="8s"
-                  repeatCount="indefinite"
-                />
-              </stop>
-              <stop offset="100%" stopColor="#2563eb" />
-            </radialGradient>
-          </defs>
+                <div>
+                  <div className="text-lg sm:text-xl font-extrabold tracking-tight text-[--foreground]">
+                    Tech Essentials
+                  </div>
+                  <div className="text-xs sm:text-sm text-[--muted] mt-0.5">
+                    POS • Scales • CCTV • Accessories
+                  </div>
+                </div>
+              </div>
 
-          <rect
-            x="10"
-            y="10"
-            width="44"
-            height="44"
-            rx="10"
-            fill="url(#hubGlow)"
-            stroke="rgba(255,255,255,0.85)"
-            strokeWidth="1.4"
-          />
+              <div className="text-[11px] font-extrabold px-3 py-1 rounded-full border border-[--border] bg-[--surface-2] text-[--foreground]">
+                Loading…
+              </div>
+            </div>
 
-          {/* Circuit lines */}
-          <path
-            d="M22 32h20"
-            stroke="rgba(11,18,32,0.9)"
-            strokeWidth="2.6"
-            strokeLinecap="round"
-          />
-          <path
-            d="M32 22v20"
-            stroke="rgba(11,18,32,0.85)"
-            strokeWidth="2.6"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
+            <p className="mt-4 text-sm text-[--muted]">
+              Preparing catalog and packages.
+            </p>
 
-      {/* Wordmark */}
-      <div className="uppercase tracking-[0.28em] text-[1.4rem] sm:text-[1.6rem] fade-in-text font-bold">
-        Tech Essentials
-      </div>
+            <div className="mt-5 h-2.5 rounded-full bg-[--surface-2] overflow-hidden border border-[--border]">
+              <div className="h-full w-[42%] progress" />
+            </div>
 
-      {/* Tagline */}
-      <div className="text-xs sm:text-sm mt-2 text-[--brand-accent] tracking-widest fade-in-delayed">
-        pos • scales • cctv • accessories
-      </div>
+            <div className="mt-3 flex items-center justify-between text-[11px] text-[--muted-2]">
+              <span>Fetching products</span>
+              <span>Almost ready</span>
+            </div>
+          </div>
 
-      {/* Progress bar */}
-      <div className="w-48 h-1.5 bg-white/10 overflow-hidden rounded-full mt-8">
-        <span
-          className="block h-full w-1/3 shimmer"
-          style={{
-            background: "linear-gradient(90deg,#2563eb,#60a5fa,#2563eb)",
-          }}
-        />
+          <div className="px-6 py-4 bg-[--surface-2] border-t border-[--border]">
+            <div className="text-[11px] text-[--muted]">
+              Tip: Message us on WhatsApp for a quick quote.
+            </div>
+          </div>
+        </div>
       </div>
 
       <style jsx>{`
-        @keyframes shimmer {
+        @keyframes bar {
           0% {
-            transform: translateX(-150%);
+            transform: translateX(-55%);
           }
           50% {
-            transform: translateX(30%);
+            transform: translateX(10%);
           }
           100% {
-            transform: translateX(150%);
+            transform: translateX(105%);
           }
         }
-        .shimmer {
-          animation: shimmer 2.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
-        }
-
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-5px);
-          }
-        }
-        .animate-float {
-          animation: float 4.5s cubic-bezier(0.45, 0, 0.25, 1) infinite;
-        }
-
-        .drop-glow {
-          filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.35))
-            drop-shadow(0 0 22px rgba(2, 6, 23, 0.35));
-          transition: filter 1s ease;
-        }
-
-        @keyframes fadeInText {
-          0% {
-            opacity: 0;
-            letter-spacing: 0.35em;
-            transform: translateY(6px);
-          }
-          100% {
-            opacity: 1;
-            letter-spacing: 0.18em;
-            transform: translateY(0);
-          }
-        }
-        .fade-in-text {
-          animation: fadeInText 1.6s cubic-bezier(0.45, 0, 0.25, 1) forwards;
-        }
-        .fade-in-delayed {
-          opacity: 0;
-          animation: fadeInText 1.6s cubic-bezier(0.45, 0, 0.25, 1) 0.5s
-            forwards;
+        .progress {
+          background: linear-gradient(
+            90deg,
+            var(--brand-primary),
+            var(--brand-secondary),
+            var(--brand-primary)
+          );
+          animation: bar 1.25s cubic-bezier(0.45, 0, 0.25, 1) infinite;
         }
 
         @media (prefers-reduced-motion: reduce) {
-          * {
+          .progress {
             animation: none !important;
-            transition: none !important;
+            transform: translateX(0) !important;
+            width: 60% !important;
           }
         }
       `}</style>

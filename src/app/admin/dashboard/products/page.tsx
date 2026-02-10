@@ -11,7 +11,7 @@ import {
   query,
 } from "firebase/firestore";
 import { firestore } from "@/utils/firebaseConfig";
-import { Plus, Trash2, Pencil, Tag } from "lucide-react";
+import { Plus, Trash2, Pencil, Tag, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 type Product = {
@@ -25,6 +25,14 @@ type Product = {
   updatedAt?: any;
 };
 
+function prettyCat(s: string) {
+  const v = (s || "").trim().toLowerCase();
+  if (!v) return "Other";
+  return v
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
 export default function AdminProductsPage() {
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,14 +43,9 @@ export default function AdminProductsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const q = query(
-        collection(firestore, "products"),
-        orderBy("updatedAt", "desc")
-      );
+      const q = query(collection(firestore, "products"), orderBy("updatedAt", "desc"));
       const snap = await getDocs(q);
-      setItems(
-        snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Product[]
-      );
+      setItems(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as Product[]);
     } catch (e) {
       console.error("Admin products load failed:", e);
       setItems([]);
@@ -53,13 +56,12 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {
     if (!cat) return items;
-
     if (cat === "deals") return items.filter((p) => p.isDeal);
-
     return items.filter((p) => (p.category || "").toLowerCase() === cat);
   }, [items, cat]);
 
@@ -84,95 +86,162 @@ export default function AdminProductsPage() {
     }
   };
 
+  const titleRight = cat ? `• ${prettyCat(cat)}` : "";
+
   return (
     <main className="bg-[--background] text-[--foreground]">
       <section className="container py-10">
-        <div className="flex items-start justify-between gap-4">
+        {/* Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold">
-              Products {cat ? `• ${cat}` : ""}
+            <div className="inline-flex items-center gap-2 badge mb-3">
+              Admin • Catalog
+            </div>
+
+            <h1 className="text-3xl font-extrabold tracking-tight">
+              Products <span className="text-[--muted] font-bold">{titleRight}</span>
             </h1>
-            <p className="text-sm text-white/70 mt-1">
+
+            <p className="mt-2 text-sm text-[--muted]">
               Add, edit, delete products for the public store.
             </p>
           </div>
 
-          <Link
-            href="/admin/dashboard/products/new"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[--brand-primary] hover:opacity-90 transition text-sm font-semibold"
-          >
-            <Plus size={18} /> New Product
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={load} className="btn btn-outline">
+              <RefreshCw size={16} />
+              Refresh
+            </button>
+
+            <Link href="/admin/dashboard/products/new" className="btn btn-primary">
+              <Plus size={18} /> New Product
+            </Link>
+          </div>
         </div>
 
+        {/* Body */}
         <div className="mt-8">
           {loading ? (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-              Loading…
+            <div className="card">
+              <div className="card-inner">
+                <div className="text-sm text-[--muted]">Loading products…</div>
+                <div className="mt-4 h-2.5 rounded-full bg-[--surface-2] overflow-hidden border border-[--border]">
+                  <div
+                    className="h-full w-[45%]"
+                    style={{
+                      background:
+                        "linear-gradient(90deg,var(--brand-primary),var(--brand-secondary),var(--brand-primary))",
+                      animation: "teBar 1.35s cubic-bezier(0.45,0,0.25,1) infinite",
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-              No products yet. Click “New Product”.
+            <div className="card">
+              <div className="card-inner">
+                <div className="text-lg font-extrabold">No products yet</div>
+                <p className="mt-1 text-sm text-[--muted]">
+                  Click <span className="font-semibold">New Product</span> to add your first listing.
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {Object.keys(grouped)
                 .sort()
                 .map((catKey) => (
-                  <div
-                    key={catKey}
-                    className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden"
-                  >
-                    <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-                      <div className="font-semibold capitalize">{catKey}</div>
-                      <button
-                        onClick={load}
-                        className="text-xs px-3 py-1 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 transition"
+                  <div key={catKey} className="card overflow-hidden">
+                    {/* Group header */}
+                    <div className="px-5 py-4 border-b border-[--border] bg-[--surface] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="font-extrabold">{prettyCat(catKey)}</div>
+                        <span className="badge">{grouped[catKey].length} item(s)</span>
+                      </div>
+
+                      <Link
+                        href={`/admin/dashboard/products?cat=${catKey}`}
+                        className="menu-link text-sm"
                       >
-                        Refresh
-                      </button>
+                        Filter view
+                      </Link>
                     </div>
 
-                    <div className="divide-y divide-white/10">
-                      {grouped[catKey].map((p) => (
-                        <div
-                          key={p.id}
-                          className="px-5 py-4 flex items-center justify-between gap-3"
-                        >
-                          <div>
-                            <div className="font-semibold flex items-center gap-2">
-                              {p.name}
-                              {p.isDeal && <Tag size={16} className="opacity-80" />}
-                              {!p.inStock && (
-                                <span className="text-xs px-2 py-0.5 rounded bg-black/40 border border-white/15">
-                                  out of stock
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-sm text-white/70">
-                              Price: P{p.price}
-                              {p.isDeal && p.dealPrice
-                                ? ` • Deal: P${p.dealPrice}`
-                                : ""}
-                            </div>
-                          </div>
+                    {/* Items */}
+                    <div className="divide-y divide-[--border] bg-[--surface]">
+                      {grouped[catKey].map((p) => {
+                        const hasDeal = p.isDeal && p.dealPrice && p.dealPrice < p.price;
 
-                          <div className="flex items-center gap-2">
-                            <Link
-                              href={`/admin/dashboard/products/${p.id}/edit`}
-                              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm"
-                            >
-                              <Pencil size={16} /> Edit
-                            </Link>
-                            <button
-                              onClick={() => onDelete(p.id)}
-                              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 transition text-sm"
-                            >
-                              <Trash2 size={16} /> Delete
-                            </button>
+                        return (
+                          <div
+                            key={p.id}
+                            className="px-5 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+                          >
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <div className="font-bold truncate">{p.name}</div>
+
+                                {p.isDeal && (
+                                  <span className="badge">
+                                    <Tag size={14} /> Deal
+                                  </span>
+                                )}
+
+                                {!p.inStock && (
+                                  <span
+                                    className="badge"
+                                    style={{
+                                      borderColor: "rgba(239,68,68,0.30)",
+                                      background: "rgba(239,68,68,0.08)",
+                                      color: "rgba(239,68,68,0.95)",
+                                    }}
+                                  >
+                                    Out of stock
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="mt-1 text-sm text-[--muted]">
+                                <span className="font-semibold text-[--foreground]">Price:</span>{" "}
+                                P{p.price}
+                                {hasDeal ? (
+                                  <>
+                                    {" "}
+                                    <span className="text-[--muted]">•</span>{" "}
+                                    <span className="font-semibold text-[--foreground]">
+                                      Deal:
+                                    </span>{" "}
+                                    P{p.dealPrice}
+                                  </>
+                                ) : null}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Link
+                                href={`/admin/dashboard/products/${p.id}/edit`}
+                                className="btn btn-outline"
+                              >
+                                <Pencil size={16} /> Edit
+                              </Link>
+
+                              <button
+                                onClick={() => onDelete(p.id)}
+                                className="btn"
+                                style={{
+                                  background: "rgba(239,68,68,0.10)",
+                                  borderColor: "rgba(239,68,68,0.25)",
+                                  color: "rgba(239,68,68,0.95)",
+                                  borderWidth: 1,
+                                  borderStyle: "solid",
+                                }}
+                              >
+                                <Trash2 size={16} /> Delete
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -180,6 +249,26 @@ export default function AdminProductsPage() {
           )}
         </div>
       </section>
+
+      <style jsx global>{`
+        @keyframes teBar {
+          0% {
+            transform: translateX(-55%);
+          }
+          50% {
+            transform: translateX(10%);
+          }
+          100% {
+            transform: translateX(105%);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation: none !important;
+            transition: none !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }
